@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ôn tập Tin học - 300 câu trắc nghiệm</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent2: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --border: #334155;
+      --correct-bg: rgba(34, 197, 94, 0.15);
+      --wrong-bg: rgba(239, 68, 68, 0.15);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .stats {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+    }
+    .stat {
+      background: var(--card);
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+    .stat span { font-weight: 700; }
+    .stat.correct span { color: var(--accent2); }
+    .stat.wrong span { color: var(--danger); }
+    .stat.done span { color: var(--accent); }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+    }
+    select, button, input[type="search"] {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.9rem;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    select:hover, button:hover { border-color: var(--accent); }
+    button.primary {
+      background: var(--accent);
+      color: #0f172a;
+      font-weight: 600;
+      border: none;
+    }
+    button.primary:hover { background: #7dd3fc; }
+    button.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+    button.danger:hover { background: var(--danger); color: white; }
+    input[type="search"] {
+      min-width: 200px;
+      flex: 1;
+    }
+    .progress-bar {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.3s;
+    }
+    .question-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      transition: border-color 0.2s;
+    }
+    .question-card.answered-correct { border-color: var(--accent2); }
+    .question-card.answered-wrong { border-color: var(--danger); }
+    .q-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .q-id {
+      background: #0f172a;
+      color: var(--accent);
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+    .q-status {
+      font-size: 0.8rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+    .q-status.correct { background: var(--correct-bg); color: var(--accent2); }
+    .q-status.wrong { background: var(--wrong-bg); color: var(--danger); }
+    .q-status.unanswered { color: var(--muted); }
+    .q-text {
+      font-size: 1.05rem;
+      margin-bottom: 1.25rem;
+      font-weight: 500;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .option:hover:not(.disabled) {
+      border-color: var(--accent);
+      background: #1e293b;
+    }
+    .option.selected {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.1);
+    }
+    .option.correct-answer {
+      border-color: var(--accent2);
+      background: var(--correct-bg);
+    }
+    .option.wrong-answer {
+      border-color: var(--danger);
+      background: var(--wrong-bg);
+    }
+    .option.disabled { cursor: default; opacity: 0.95; }
+    .opt-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .option.correct-answer .opt-letter { background: var(--accent2); color: #0f172a; }
+    .option.wrong-answer .opt-letter { background: var(--danger); color: white; }
+    .option.selected .opt-letter { background: var(--accent); color: #0f172a; }
+    .nav-btns {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .mode-toggle {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .mode-toggle button.active {
+      background: var(--accent);
+      color: #0f172a;
+      border-color: var(--accent);
+    }
+    .list-view .question-card { cursor: pointer; }
+    .list-view .options { display: none; }
+    .list-view .question-card.expanded .options { display: flex; }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .empty {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+    }
+    @media (max-width: 600px) {
+      h1 { font-size: 1.1rem; }
+      .stats { font-size: 0.8rem; }
+      main { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>📚 Ôn tập Tin học · 300 câu</h1>
+      <div class="stats">
+        <div class="stat done">Đã làm: <span id="stat-done">0</span>/300</div>
+        <div class="stat correct">Đúng: <span id="stat-correct">0</span></div>
+        <div class="stat wrong">Sai: <span id="stat-wrong">0</span></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+
+    <div class="controls">
+      <div class="mode-toggle">
+        <button id="btn-quiz" class="active" onclick="setMode('quiz')">Chế độ làm bài</button>
+        <button id="btn-list" onclick="setMode('list')">Danh sách</button>
+      </div>
+      <select id="filter-section" onchange="applyFilter()">
+        <option value="">Tất cả phần</option>
+      </select>
+      <input type="search" id="search" placeholder="Tìm theo mã hoặc nội dung..." oninput="applyFilter()" />
+      <button onclick="shuffleQuestions()">🔀 Xáo trộn</button>
+      <button class="danger" onclick="resetProgress()">🗑 Xóa tiến độ</button>
+    </div>
+
+    <div id="quiz-area">
+      <div id="question-container"></div>
+      <div class="nav-btns" id="nav-btns">
+        <button onclick="prevQ()">← Trước</button>
+        <button class="primary" onclick="nextQ()">Tiếp →</button>
+        <button onclick="jumpUnanswered()">Câu chưa làm</button>
+        <button onclick="showAnswer()">Hiện đáp án</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Dữ liệu từ bộ câu hỏi trắc nghiệm Tin học · Tiến độ được lưu tự động trên trình duyệt (localStorage)
+  </footer>
+
+  <script>
+    // ============ DATA (300 questions) ============
+    const QUESTIONS = [{"id":"A.I.1","question":"GUI cho phép giao tiếp với máy tính bằng hình ảnh và chữ viết. GUI là viết tắt của từ nào?","options":["Graphical User Interface.","Graphics User Interaction.","Good User Interface.","Great User Interface."],"correct":0},{"id":"A.I.2","question":"Phát biểu nào sau đây là đúng về bộ nhớ RAM?","options":["Cho phép đọc ghi xoá thông tin.","Không thể nâng cấp.","Khi mất điện dữ liệu trong RAM không bị mất.","Hệ thống vẫn hoạt động khi thiếu RAM."],"correct":0},{"id":"A.I.3","question":"ROM là từ viết tắt của từ nào?","options":["Read Only Memory.","Resources Of Memory.","Random Only Memory.","Random Output Measure."],"correct":0},{"id":"A.I.4","question":"Ta không thể gõ phím số ở vùng phím số chuyên dụng là bởi vì?","options":["Chưa nhấn phím Num Lock trên bàn phím.","Chưa nhấn phím Scroll Lock trên bàn phím.","Chưa nhấn phím Pause / Break trên bàn phím.","Chưa nhấn phím Caps Lock trên bàn phím."],"correct":0},{"id":"A.I.5","question":"Virus máy tính là gì?","options":["Là một chương trình máy tính.","Chỉ hoạt động khi phần mềm bị sao chép trái phép.","Là phần cứng chỉ phá hoại các phần khác.","Là một loại nấm mốc trên bề mặt đĩa."],"correct":0},{"id":"A.I.6","question":"Firmware là gì?","options":["Được lập trình và được nhúng vào trong một thiết bị phần cứng.","Một mã số nhận dạng mà nhà cung cấp sản phẩm gắn vào linh kiện phần cứng.","Một bảo hành được cung cấp với một thiết bị phần cứng.","Một tên gọi khác cho phần cứng đặc biệt nhỏ như một linh kiện."],"correct":0},{"id":"A.I.7","question":"Theo bạn, các phần mềm sau thuộc nhóm phần mềm nào: MS Word, MS Excel, MS PowerPoint?","options":["Nhóm phần mềm ứng dụng.","Nhóm phần mềm hệ thống.","Nhóm phần mềm CSDL.","Nhóm phần mềm hệ điều hành."],"correct":0},{"id":"A.I.8","question":"Trình tự xử lý thông tin của máy tính điện tử như thế nào?","options":["Nhập thông tin → Xử lý thông tin → Xuất thông tin.","Màn hình → CPU → Đĩa cứng.","Đĩa cứng → Màn hình → CPU.","Màn hình → Máy in → CPU."],"correct":0},{"id":"A.I.9","question":"Phát biểu nào đúng?","options":["Hai máy tính vẫn có thể kết nối với nhau mà không quan tâm đến khoảng cách địa lý là bao xa.","Các máy tính gần nhau mặc định sẽ thấy nhau dù không cùng lớp mạng.","Nếu chỉ có một máy tính thì nó không thể chia sẽ dữ liệu.","Máy khác có thể thay đổi các tập tin chia sẽ khi chưa được phép."],"correct":0},{"id":"A.I.10","question":"Tường lửa là gì?","options":["Kiểm soát lưu thông dữ liệu giữa 2 vùng có độ tin cậy khác nhau trên mạng.","Là sự kết hợp của một phần mềm và một thiết bị phần cứng.","Có thể dùng để chặn các truy cập hợp pháp đến một thiết bị/dịch vụ.","Là một thuật ngữ ám chỉ máy tính không còn an toàn nữa."],"correct":0},{"id":"A.II.1","question":"My Computer không có chức năng nào dưới đây?","options":["Quản lý Virus.","Quản lý ổ đĩa, mạng.","Quản lý máy in.","Quản lý Control Panel."],"correct":0},{"id":"A.II.2","question":"Khái niệm Desktop là gì?","options":["Là màn hình xuất hiện đầu tiên sau khi Windows khởi động xong.","Là màn hình đăng nhập.","Là màn hình để chỉnh sửa các thành phần của Windows.","Là màn hình đầu tiên xuất hiện khi cài đặt một phần mềm."],"correct":0},{"id":"A.II.3","question":"Hệ điều hành là gì?","options":["Một chương trình chạy trên máy tính dùng quản lý điều hành máy tính.","Một chương trình chạy trên máy tính như các chương trình khác.","Một thiết bị gắn thêm vào máy tính để quản lý điều hành máy tính.","Chính là máy tính."],"correct":0},{"id":"A.II.4","question":"Tệp tin có phần mở rộng là EXE cho ta biết đây là loại tệp tin gi?","options":["File thực thi.","File ảnh.","File văn bản.","File âm thanh."],"correct":0},{"id":"A.II.5","question":"Quá trình Hibernate trong máy tính nghĩa là gì?","options":["Lưu các trạng thái hiện thời của các ứng dụng đang mở vào ổ cứng và đặt máy tính vào trạng thái tắt hoàn toàn.","Đặt máy vào trạng thái chờ đợi và hoạt động trở lại khi bấm nút trên bàn phím hoặc chuột.","Đặt máy tính vào trạng thái tắt hoàn toàn.","Máy tính sẽ tắt hoàn toàn và tự bật nguồn lên lại."],"correct":0},{"id":"A.II.6","question":"Số ký tự tối đa mà một tên tập tin có thể có là bao nhiêu?","options":["255.","64.","128.","256."],"correct":0},{"id":"A.II.7","question":"Ý nghĩa của Recycle Bin (thùng rác) là gì?","options":["Khu vực lưu trữ tạm thời các tập tin và thư mục bị xóa.","Lưu trữ các tập tin đã bị xóa hoặc thư mục được tạo ra bởi những người chia sẽ máy tính.","Cho biết có các tập tin cũ sẽ bị xóa.","Cho biết có thể xóa một số thư mục cũ hơn."],"correct":0},{"id":"A.II.8","question":"Trong hệ điều hành Windows, thanh hiển thị tên chương trình và nằm trên cùng của một cửa sổ được gọi là gì?","options":["Thanh tiêu đề (Title Bar).","Thanh công cụ chuẩn (Standard Bar).","Thanh trạng thái (Status Bar).","Thanh cuộn (Scroll Bar)."],"correct":0},{"id":"A.II.9","question":"Trong hệ điều hành Windows, thao tác Drag and Drop (kéo thả chuột) được sử dụng khi ta cần làm gì?","options":["Di chuyển đối tượng đến vị trí mới.","Mở thư mục.","Thay đổi màu nền cho cửa sổ hiện hành.","Xem thuộc tính của tệp hiện tại."],"correct":0},{"id":"A.II.10","question":"Đường tắt (Shortcut) là gì?","options":["Là biểu tượng giúp người dùng truy cập nhanh vào đối tượng thường sử dụng.","Là biểu tượng để mở cửa sổ My Computer.","Là chương trình được cài đặt vào máy tính với mục đích hổ trợ người sử dụng soạn thảo các văn bản tiếng Việt.","Là chương trình được cài đặt vào máy tính giúp người dùng khởi động máy tính nhanh chóng."],"correct":0},{"id":"B.I.1","question":"Đâu là một ví dụ của chính sách mật khẩu tốt?","options":["Không bao giờ cho người khác biết mật khẩu của bạn","Mật khẩu phải giống lý lịch người sử dụng (ví dụ ngày tháng năm sinh, quê quán).","Chọn một mật khẩu có ít hơn 6 mẫu tự.","Chỉ thay đổi mật khẩu sau một thời gian dài."],"correct":0},{"id":"B.I.2","question":"Loại máy tính nào được dùng để chạy những phần mềm chuyên môn hóa hoặc để chia sẽ tài nguyên, quản lý nguồn dữ liệu lớn?","options":["Server.","Netbook.","Desktop.","Tablet."],"correct":0},{"id":"B.I.3","question":"Máy tính có thể giúp con người thực hiện?","options":["Đáp án (I), (II), (III) đều đúng.","Hệ thống thẻ tín dụng. (I)","Chuyển tiền qua mạng máy tính của ngân hàng. (II)","Học tập mọi nơi, mọi lúc. (III)"],"correct":0},{"id":"B.I.4","question":"Mục đích chủ yếu của chính sách an ninh thông tin của một tổ chức là gì?","options":["Theo dõi và kiểm soát thông tin, dữ liệu nhạy cảm.","Quản lý việc đầu tư của công ty.","Mô tả hoạt động kinh doanh.","Thu nhập thông tin thị trường."],"correct":0},{"id":"B.I.5","question":"Vấn đề sức khỏe phổ biến của người sử dụng máy tính là các chấn thương cổ tay. Nguyên nhân của chấn thương thông thường là gì?","options":["Sử dụng bàn phím lâu.","Ghế không điều chỉnh.","Vị trí màn hình đặt sai.","Sử dụng hàng ngày một thiết bị đỡ cổ tay."],"correct":0},{"id":"B.II.1","question":"Để chụp hình ảnh của một hộp thoại bằng bàn phím ta nhấn tổ hợp phím nào?","options":["Alt+Printscreen.","Shift+Tab.","Alt+Tab.","Ctrl+Printscreen."],"correct":0},{"id":"B.II.2","question":"Bộ phím tắt nào được sử dụng để chuyển sang các cửa sổ đang mở khác?","options":["Alt+Tab.","Alt+F4.","Ctrl+Esc.","Ctrl+Tab."],"correct":0},{"id":"B.II.3","question":"Hệ điều hành không có nhiệm vụ nào?","options":["Diệt Virus máy tính.","Cung cấp giao diện sử dụng và giao diện lập trình cho người dùng.","Thực hiện các thao tác cơ bản như đọc/ghi và quản lý tập tin.","Cung cấp một số công cụ cơ bản như trình duyệt, trình soạn thảo văn bản."],"correct":0},{"id":"B.II.4","question":"Phím tắt nào được dùng để đổi tên tập tin/thư mục?","options":["F2.","F1.","F3.","F4."],"correct":0},{"id":"B.II.5","question":"Control Panel trong hệ điều hành Windows là gì?","options":["Các ý trên đều đúng.","Là tập hợp các chương trình dùng để cài đặt các tham số hệ thống như phông chữ, máy in, ngày giờ.","Là tập hợp các chương trình dùng để quản lí các phần mềm ứng dụng.","Là tập hợp các chương trình dùng để thay đổi các tham số của các thiết bị phần cứng như chuột, bàn phím, màn hình."],"correct":0},{"id":"B.III.1","question":"Trong Word 2016, tổ hợp phím tắt để di chuyển con trỏ về cuối tài liệu?","options":["Ctrl+End.","End.","Ctrl+Page Down.","Page Down."],"correct":0},{"id":"B.III.2","question":"Trong Word 2016, phím tắt để di chuyển con trỏ về đầu tài liệu?","options":["Ctrl+Home.","Home.","Ctrl+Page Up.","End."],"correct":0},{"id":"B.III.3","question":"Tổ hợp phím Ctrl+Z trong Word 2016 dùng để làm gì?","options":["Hủy kết quả của thao tác hoặc lệnh phía trước gần nhất kết quả hiện tại.","Hủy thao tác Đóng cửa sổ đang mở.","Đóng tập tin đang mở.","Nhảy đến một trang văn bản."],"correct":0},{"id":"B.III.4","question":"Trong Word 2016, muốn tạo chữ rơi cho văn bản, ta thực hiện như thế nào?","options":["Thẻ Insert – Dropcap.","Thẻ Layout – Dropcap.","Thẻ Design – Dropcap.","Thẻ Home – Dropcap."],"correct":0},{"id":"B.III.5","question":"Trong Word 2016, tạo Header cho văn bản có nghĩa là?","options":["Tạo tiêu đề trên đầu văn bản.","Tạo tiêu đề bên lề trái của văn bản.","Tạo tiêu đề bên lề phải của văn bản.","Tạo tiêu đề dưới chân văn bản."],"correct":0},{"id":"B.III.6","question":"Lựa chọn nào sau đây là đúng khi nói về phần mềm xử lý văn bản?","options":["Dùng để soạn thảo văn bản.","Dùng để chỉnh sửa ảnh.","Dùng để nghe nhạc.","Dùng để truy cập Internet."],"correct":0},{"id":"B.III.7","question":"Trong Word 2016, muốn xuống dòng nhưng chưa muốn kết thúc đoạn, ta dùng tổ hơp phím nào sau đây?","options":["Nhấn tổ hợp phím Shift + Enter.","Nhấn tổ hợp phím Ctrl + Enter.","Nhấn tổ hợp phím Shift + Space.","Nhấn tổ hợp phím Alt + Enter."],"correct":0},{"id":"B.III.8","question":"Trong Word 2016, để xóa bỏ toàn bộ định dạng kiểu chữ của văn bản đang chọn, ta nhấn tổ hợp phím nào sau đây?","options":["Nhấn tổ hợp phím Ctrl + Space.","Nhấn tổ hợp phím Ctrl + Delete.","Nhấn tổ hợp phím Ctrl + Enter.","Nhấn tổ hợp phím Shift + Space."],"correct":0},{"id":"B.III.9","question":"Trong Word 2016, công dụng của tổ hợp phím Ctrl + O dùng để thực hiện chức năng gì?","options":["Mở tập tin có sẵn trên đĩa.","Tạo mới 01 tập tin.","Lưu tập tin.","Xóa tập tin."],"correct":0},{"id":"B.III.10","question":"Trong Word 2016, công dụng của tổ hợp phím Ctrl + N dùng để thực hiện chức năng gì?","options":["Tạo mới 01 tập tin.","Lưu tập tin.","Mở tập tin có sẵn trên đĩa.","Xóa tập tin."],"correct":0},{"id":"B.III.11","question":"Trong Word 2016, công dụng của tổ hợp phím Ctrl + I có tác dụng gì?","options":["Tạo chữ nghiêng của đoạn văn bản.","Canh đoạn văn bản giữa dòng.","Canh đều 2 biên đoạn văn bản.","Tạo chữ gạch chân nét đơn."],"correct":0},{"id":"B.III.12","question":"Trong Word 2016, công dụng của tổ hợp phím Ctrl + J có tác dụng gì?","options":["Canh đều 2 bên đoạn văn bản.","Tạo chữ đậm của đoạn văn bản.","Tạo chữ nghiêng của đoạn văn bản.","Tạo chữ gạch chân nét đơn."],"correct":0},{"id":"B.III.13","question":"Trong Word 2016, công dụng của tổ hợp phím Ctrl + R có tác dụng gì?","options":["Canh phải đoạn văn bản.","Canh trái đoạn văn bản.","Canh hai giữa đoạn văn bản.","Canh đều 2 biên đoạn văn bản."],"correct":0},{"id":"B.III.14","question":"Trong Word 2016, công dụng của tổ hợp phím Ctrl + Shift + D có tác dụng gì?","options":["Gạch dưới nét đôi.","Gạch chân đơn đoạn văn bản.","Mở hộp thoại Font.","Gạch giữa dòng văn bản."],"correct":0},{"id":"B.III.15","question":"Trong Word 2016, công dụng của tổ hợp phím Ctrl+] / Ctrl+[ có tác dụng gì?","options":["Tăng / giảm cỡ chữ lên 1 đơn vị.","Tạo chỉ số dưới / chỉ số trên.","Tăng / giảm cỡ chữ xuống 2 đơn vị.","Đẩy lề trái vào / đẩy lề trái ra."],"correct":0},{"id":"B.III.16","question":"Trong Word 2016, công dụng của tổ hợp phím Ctrl+Q có tác dụng gì?","options":["Xóa toàn bộ định dạng Tab stop của văn bản.","Tăng kích thước font chữ.","Tạo chỉ số trên.","Tạo chỉ số dưới."],"correct":0},{"id":"B.III.17","question":"Trong Word 2016, muốn trộn nhiều ô thành một ô, sau khi chọn các ô ta thực hiện thao tác nào sau đây?","options":["Kích chuột phải chọn Merge Cells….","Kích chuột phải chọn Split Cells….","Kích chuột phải chọn Delete Cells….","Kích chuột phải chọn Insert Cells…."],"correct":0},{"id":"B.III.18","question":"Trong Word 2016, muốn chia một ô thành nhiều ô, sau khi chọn một ô ta thực hiện thao tác nào sau đây?","options":["Kích chuột phải chọn Split Cells….","Kích chuột phải chọn Merge Cells….","Kích chuột phải chọn Delete Cells….","Kích chuột phải chọn Insert Cells…."],"correct":0},{"id":"B.III.19","question":"Trong Word 2016, muốn thay đổi khoảng cách so với đoạn trước, khi chọn Paragraph...xuất hiện hộp thoại Paragraph ta thay đổi giá trị mục nào trong các mục sau trong nhóm Spacing?","options":["After.","Before.","Left.","Right."],"correct":0},{"id":"B.III.20","question":"Trong Word 2016, để định dạng văn bản gạch chân ta sử dụng phím tắt nào sau đây?","options":["Nhấn tổ hợp phím Ctrl + U.","Nhấn tổ hợp phím Ctrl + I.","Nhấn tổ hợp phím Ctrl + B.","Nhấn tổ hợp phím Ctrl + D."],"correct":0},{"id":"B.V.1","question":"Trong PowerPoint 2016, để chỉnh chiều của Slide, ta sử dụng chức năng nào?","options":["Design - Page Setup.","Home - Arrange.","Preview - Compare.","View - Slide Master."],"correct":0},{"id":"B.V.2","question":"Trong PowerPoint 2016, để tô màu nền, ta sử dụng chức năng nào?","options":["Design – Background – Background Style.","Insert – Background – Background Style.","Home – Background – Background Style.","View – Background – Background Style."],"correct":0},{"id":"B.V.3","question":"Trong PowerPoint 2016, sau khi thiết kế xong bài trình diễn, cách nào sau đây để trình chiếu ngay bài trình diễn đó?","options":["Nhấn phím F5.","Chọn Slide Show → Chọn Custom Show.","Chọn View → Chọn Slide Show.","Chọn Slide Show → Chọn View Show."],"correct":0},{"id":"B.V.4","question":"Trong PowerPoint 2016, chức năng nào không có khi làm việc với Section?","options":["Duplicate Section.","Rename Section.","Remove Section.","Remove Section & Slides."],"correct":0},{"id":"B.V.5","question":"Trong PowerPoint 2016, để thay đổi hướng văn bản trong một đối tượng TextBox ta thực hiện thao tác nào sau đây?","options":["Text Direction của mục Home / Paragraph.","Text Orience của mục Design / Paragraph.","Text View của mục Design / Paragraph.","Wrap text trong Home / Paragraph."],"correct":0},{"id":"B.V.6","question":"Trong PowerPoint 2016, muốn đánh số cho từng Slide, ta dùng lệnh nào sau đây?","options":["Insert / Slide Number.","Insert / Bullets and Numbering.","Format / Slide Number.","View / Slide Number."],"correct":0},{"id":"B.V.7","question":"Trong PowerPoint 2016, muốn chèn Bảng (Table) Excel ta thực hiện lệnh nào sau đây?","options":["Insert / Excel Spreadsheet.","Insert / Insert Table Excel.","Insert / Draw Table Excel.","Insert / Excel Worksheet."],"correct":0},{"id":"B.V.8","question":"Trong PowerPoint 2016, chức năng Insert / ScreenShot trong Microsoft PowerPoint 2016 dùng để làm gì?","options":["Chèn 1 hình ảnh và các màn hình hiện tại đang mở trên Windows.","Chèn 1 hình ảnh lưu trong ổ cứng.","Chèn 1 hình ảnh từ mạng Internet.","Chèn 1 hình ảnh màn hình Windows."],"correct":0},{"id":"B.V.9","question":"Trong PowerPoint 2016, để vẽ chính xác một hình vuông sau khi chọn Insert / Shape / Rectangle ta kết hợp phím nào sau đây khi vẽ?","options":["Nhấn phím Shift.","Nhấn phím Alt.","Nhấn tổ hợp phím Ctrl + Shift.","Nhấn phím Ctrl."],"correct":0},{"id":"B.V.10","question":"Trong PowerPoint 2016, để chèn 1 liên kết trong Microsoft PowerPoint 2016 ta sử dụng phím tắt nào sau đây?","options":["Nhấn tổ hợp phím Ctrl + K.","Nhấn tổ hợp phím Ctrl + H.","Nhấn tổ hợp phím Ctrl + L.","Nhấn tổ hợp phím Ctrl + J."],"correct":0},{"id":"C.I.1","question":"Đâu không phải là trách nhiệm cá nhân của người dùng?","options":["Quản lý các người dùng khác.","Đảm bảo bảo mật thông tin cá nhân.","Đảm bảo độ mạnh của mật khẩu (nếu có) và đổi mật khẩu thường xuyên.","Đảm bảo chia sẻ tài nguyên đúng người và đúng việc."],"correct":0},{"id":"C.I.2","question":"Nếu một máy tính bị nghi ngờ là nhiễm virus thì cách thức tốt nhất để kiểm tra và diệt virus là gì?","options":["Cài đặt một chương trình chống virus, quét virus các ổ đĩa của máy tính và cho chương trình này loại bỏ virus.","Cài đặt lại hệ điều hành, sau đó cài đặt lại tất cả các chương trình ứng dụng khác.","Lưu trữ dự phòng các tập tin của máy tính và hồi phục chúng bằng việc sử dụng những tập tin dự phòng này.","Khởi động lại máy tính và sau đó xóa tất cả những tập tin bị nghi ngờ nhiễm virus."],"correct":0},{"id":"C.I.3","question":"Ta nhận được gì khi mua một chương trình phần mềm?","options":["Giấy phép cho phép cài đặt và sử dụng chương trình phần mềm.","Các quyền chia sẻ chương trình với người dùng khác.","Mã nguồn của chương trình.","Quyền bán các chương trình phần mềm cho người khác."],"correct":0},{"id":"C.I.4","question":"Theo bạn, câu nào sau đây không thể hiện ưu điểm của làm việc từ xa (Tele-working)?","options":["Tăng cường sự liên hệ trực tiếp.","Khả năng tập trung vào công việc.","Giảm thời gian đi lại.","Giảm không gian văn phòng."],"correct":0},{"id":"C.I.5","question":"Trong những tình huống hoặc lĩnh vực nào sau đây, con người làm việc tốt hơn máy tính?","options":["Nhận dạng.","Tính toán.","Những công việc được tự động hóa.","Những nơi nguy hiểm."],"correct":0},{"id":"C.II.1","question":"Để định vị Taskbar trong trạng thái \"Lock the Taskbar\" được định vị tùy ý ta chọn?","options":["Nhấn phải chuột vào Taskbar chọn Properties – tại dòng Taskbar location on screen và chọn vị trí tùy ý.","Taskbar định vị ở bottom là cố định và không thể di chuyển.","Dùng chuột kéo thẻ Taskbar tùy ý trên 4 cạnh màn hình.","Nhấn phải chuột vào Taskbar chọn Show Desktop."],"correct":0},{"id":"C.II.2","question":"Để xem nội dung thư mục với các thông tin mặc định: Name, Types, Size, Date modified, …ta chọn chế độ hiển thị nào?","options":["Detail.","Tiles.","List.","Content."],"correct":0},{"id":"C.II.3","question":"Việc cài đặt một ngôn ngữ khác trên máy tính nhằm mục đích gì?","options":["Để thay đổi việc hiển thị hoặc cách nhập liệu.","Để tự động chuyển đổi email sang ngôn ngữ khác khi ta mở chúng.","Để cho phép tập tin fax từ các nước khác đến máy tính sẽ được dịch tự động.","Để dịch tự động một tài liệu sang ngôn ngữ khác."],"correct":0},{"id":"C.II.4","question":"Thông báo sau cho biết điều gì?","options":["Di chuyển thư mục Books vào thùng rác.","Xóa hoàn toàn thư mục Books.","Không thể đổi tên thư mục Books thành tên khác.","Chỉ hiển thị thông tin về thư mục Books và không có gì xảy ra nếu bấm nút Yes hoặc No."],"correct":0},{"id":"C.II.5","question":"Phát biểu nào sai?","options":["Chức năng chính của hệ điều hành là thực hiện tìm kiếm thông tin trên Internet.","Hệ điều hành đảm bảo giao tiếp giữa người dùng và máy tính.","Hệ điều hành cung cấp các phương tiện và dịch vụ để người sử dụng dễ dàng thực hiện chương trình, quản lí chặt chẽ, khai thác các tài nguyên của máy tính một cách tối ưu.","Hệ điều hành Windows là hệ điều hành dùng cho máy tính cá nhân của hãng Microsoft."],"correct":0},{"id":"C.III.1","question":"Tính năng nào sau đây không đúng là của Word 2016?","options":["Lưu và đọc các tập tin dạng .exe.","Lưu và đọc các tập tin văn bản dạng .doc, .docx","Lưu và đọc các tập tin HTML.","Lưu và đọc các tập tin dạng .txt."],"correct":0},{"id":"C.III.2","question":"Trong Word 2016, khi giữ phím Ctrl và bấm chuột trái vào trong văn bản có tác dụng gì?","options":["Chọn một câu tại vị trí con trỏ.","Chọn một từ tại vị trí con trỏ.","Chọn một đoạn văn tại vị trí con trỏ.","Di chuyển con nháy đến vị trí con trỏ."],"correct":0},{"id":"C.III.3","question":"Trong Word 2016, chức năng nào được dùng để trộn các ô trong bảng biểu?","options":["Merge Cells.","Cell Margins.","Mail Merge.","Split Cells."],"correct":0},{"id":"C.III.4","question":"Chức năng Recent trong thẻ File của Word 2016 có chức năng gì?","options":["Xem các văn bản đã mở gần đây.","Xem thông tin văn bản hiện tại.","Mở ra một trang văn bản mới.","Xem bố cục của văn bản trước khi in."],"correct":0},{"id":"C.III.5","question":"Trong Word 2016, muốn bật / tắt thước (Ruler) cho xuất hiện thước / ẩn trên màn hình ta thực hiện thao tác nào sau đây?","options":["Vào tab View / Ruler.","Vào tab File / Ruler.","Vào tab Edit / Ruler.","Vào tab Format / Ruler."],"correct":0},{"id":"C.III.6","question":"Cách nào sau đây được dùng để thay đổi Zoom cho văn bản hiện hành trong chương trình Word 2016?","options":["Tại thẻ View, chọn nút Zoom trong nhóm Zoom.","Tại thẻ View, chọn nút Full Screen Reading.","Lăn nút cuộn của chuột.","Nhấn và giữ phím ALT trong khi lăn nút cuộn của chuột."],"correct":0},{"id":"C.III.7","question":"Trong Word 2016, biểu tượng nào sau đây hiển thị trên nút Show/Hide?","options":["Dấu (¶).","Dấu (¤).","Dấu (§).","Dấu (~)."],"correct":0},{"id":"C.III.8","question":"Trong Word 2016, khi đang soạn thảo văn bản để xác định tổng số trang của văn bản hiện hành ta quan sát ở đâu?","options":["Thanh trạng thái.","Thanh công cụ Ribbon.","Trong trang Backstage của thực đơn File.","Thanh thước."],"correct":0},{"id":"C.III.9","question":"Trong Word 2016, thao tác nhấp chuột trái 3 lần vào lề trái của văn bản sẽ có tác dụng gì?","options":["Chọn toàn bộ văn bản.","Chọn một dòng.","Chọn đoạn văn bản hiện hành.","Mở cửa sổ Page Setup."],"correct":0},{"id":"C.III.10","question":"Trong Word 2016, công dụng của tổ hợp phím Alt+W có tác dụng gì?","options":["Đóng văn bản đang làm việc.","Thoát khỏi Word 2016.","Nhảy con trỏ tới trang chỉ định.","Xóa bỏ định dạng văn bản."],"correct":0},{"id":"C.III.11","question":"Trong Word 2016, công dụng của tổ hợp phím Ctrl+H có tác dụng gì?","options":["Gọi chức năng thay thế trong soạn thảo.","Định dạng chữ hoa cho văn bản.","Mở cửa sổ Cấu hình văn bản.","Mở cửa sổ Lưu văn bản."],"correct":0},{"id":"C.III.12","question":"Trong Word 2016, dùng lệnh nào sau đây để tạo phần văn bản với hiệu ứng 3D?","options":["Word Art.","Wrap Text.","Drop Cap.","Effect."],"correct":0},{"id":"C.III.13","question":"Trong Word 2016, để đưa cột và hàng về một kích cỡ nhất định, bạn dùng tùy chọn nào?","options":["Table Properties.","Alignment.","Split Table.","Split Cells."],"correct":0},{"id":"C.III.14","question":"Trong Word 2016, khi chọn Paragraph... xuất hiện hộp thoại Paragraph ta thay đổi giá trị mục Right trong các mục sau trong nhóm Indentation có nghĩa là gì?","options":["Thay đổi khoảng cách lề phải của đoạn đang chọn.","Thay đổi khoảng cách lề phải trang giấy.","Thay đổi khoảng cách hàng đầu tiên của đoạn văn với lề phải.","Thay đổi khoảng cách Hanging (từ dòng số 2 của đoạn thụt vào) so với lề phải."],"correct":0},{"id":"C.III.15","question":"Trong Word 2016, để mở hộp thoại định dạng Font chữ ta sử dụng phím tắt nào sau đây?","options":["Nhấn tổ hợp phím Ctrl + D.","Nhấn tổ hợp phím Ctrl + C.","Nhấn tổ hợp phím Ctrl + E.","Nhấn tổ hợp phím Ctrl + F."],"correct":0},{"id":"C.III.16","question":"Trong Word 2016, mở hộp thoại Font, Font Style là định dạng gì?","options":["Kiểu chữ: In đậm, in nghiêng hay thường.","Kích cỡ chữ.","Màu chữ.","Chỉ số trên và chỉ số dưới."],"correct":0},{"id":"C.III.17","question":"Trong Word 2016, sử dụng tổ hợp phím tắt Ctrl + Shift + > để làm gì?","options":["Tăng kích cỡ chữ 2 đơn vị.","Giảm kích cỡ chữ 2 đơn vị.","Về đầu trang văn bản.","Về cuối trang văn bản."],"correct":0},{"id":"C.III.18","question":"Trong Word 2016, công cụ Format Painter trên thẻ Home dùng để làm gì?","options":["Sao chép định dạng từ 1 văn bản nguồn sang văn bản đích.","Vẽ hình ảnh.","Định dạng đoạn văn với màu sắc sặc sỡ.","Sao chép văn bản."],"correct":0},{"id":"C.III.19","question":"Trong Word 2016, để định dạng đoạn văn bản canh lề trái ta sử dụng phím tắt nào sau đây?","options":["Nhấn tổ hợp phím Ctrl + L.","Nhấn tổ hợp phím Ctrl + J.","Nhấn tổ hợp phím Ctrl + E.","Nhấn tổ hợp phím Ctrl + R."],"correct":0},{"id":"C.III.20","question":"Trong Word 2016, để định dạng đoạn văn bản canh lề phải ta sử dụng phím tắt nào sau đây?","options":["Nhấn tổ hợp phím Ctrl + R.","Nhấn tổ hợp phím Ctrl + J.","Nhấn tổ hợp phím Ctrl + E.","Nhấn tổ hợp phím Ctrl + L."],"correct":0},{"id":"C.IV.1","question":"Trong Excel 2016, câu nào sau đây là đúng nhất?","options":["Có thể ẩn một hàng hoặc cột không cho hiển thị.","Có thể ẩn một hàng hoặc cột không cho hiển thị.","Có thể ẩn một ô không cho hiển thị.","Có thể tùy chỉnh độ rộng của các ô trong cùng một cột khác nhau."],"correct":0},{"id":"C.IV.2","question":"Trong Excel 2016, câu nào sau đây sai?","options":["Chỉ Auto Fill được với các giá trị số.","Tính năng Auto Fill có thể dùng để sao chép dữ liệu.","Chức năng AutoComplete có thể tắt đi được.","Có thể dùng chức năng Series với kiểu dữ liệu ngày."],"correct":0},{"id":"C.IV.3","question":"Khi nhập liệu ngày tháng trong Microsoft Excel 2016 ở Việt Nam, cần phải nhập theo định dạng nào sau đây?","options":["Tuỳ theo định dạng ngày tháng của máy tính.","dd/mm/yyyy.","mm/dd/yyyy.","Tuỳ theo qui định ở Việt Nam lúc đó."],"correct":0},{"id":"C.IV.4","question":"Trong Excel 2016, đáp án nào sau đây sai?","options":["Dữ liệu kiểu số sẽ mặc định căn lề trái.","Dữ liệu kiểu ký tự sẽ mặc định căn lề trái.","Dữ liệu kiểu thời gian sẽ mặc định căn lề phải.","Dữ liệu kiểu ngày tháng sẽ mặc định căn lề phải."],"correct":0},{"id":"C.IV.5","question":"Trong Excel 2016, các kiểu dữ liệu thông dụng là gì?","options":["Chuỗi, số, logic, ngày tháng, kiểu công thức.","Công thức, hàm, số, ngày tháng.","Số, logic, ngày tháng.","Chuỗi, văn bản, ngày tháng."],"correct":0},{"id":"C.IV.6","question":"Trong Excel 2016, điều kiện trong hàm IF được phát biểu dưới dạng một phép so sánh. Khi cần so sánh khác nhau thì sử dụng ký hiệu nào?","options":["Dấu “<>”.","Dấu “&”.","Dấu “><”.","Dấu “#”."],"correct":0},{"id":"C.IV.7","question":"Trong Excel 2016, địa chỉ $A3$ là địa chỉ gì?","options":["Biểu diễn sai.","Tương đối.","Tuyệt đối.","Hỗn hợp."],"correct":0},{"id":"C.IV.8","question":"Trong Excel 2016, nếu trong một ô tính có các kí hiệu #####, điều đó có nghĩa là gì?","options":["Cột chứa ô đó có độ rộng quá hẹp nên không hiển thị hết chữ số.","Hàng chứa ô đó có độ cao quá thấp nên không hiển thị hết chữ số.","Tập tin chứa bảng tính bị nhiễm virus.","Công thức nhập vào ô bị sai và Excel 2016 thông báo lỗi."],"correct":0},{"id":"C.IV.9","question":"Trong Excel 2016, trên thẻ Home của thanh công cụ Ribbon biểu tượng (Decrease Decimal) cho vùng dữ liệu được lựa chọn có ý nghĩa gì?","options":["Giảm số lẻ thập phân và làm tròn số.","Tăng số lẻ thập phân và làm tròn số.","Giảm số lẻ thập phân và làm tròn số.","Định dạng số theo kiểu phân lớp."],"correct":0},{"id":"C.IV.10","question":"Trong Excel 2016, để biểu diễn số liệu dạng phần trăm, sử dụng biểu đồ kiểu nào dưới đây là hợp lý nhất?","options":["Biểu đồ dạng quạt tròn (Pie).","Biểu đồ cột đứng (Column).","Biểu đồ đường gấp khúc (Line).","Biểu đồ dạng thanh (Bar)."],"correct":0},{"id":"C.IV.11","question":"Trong Excel 2016, để nhập một giá trị dạng ngày (date) vào một ô nào đó ta phải làm gì?","options":["Nhập phù hợp với dạng ngày đã thiết lập trong Control Panel.","Nhập theo dạng dd/mm/yyyy.","Nhập theo dạng mm/dd/yyyy.","Nhập theo dạng yyyy/mm/dd."],"correct":0},{"id":"C.IV.12","question":"Trong Excel 2016, để xóa dữ liệu trong các ô đang chọn thì ta dùng cách nào?","options":["Nhấn phải chuột và chọn lệnh Clear contents.","Tại thẻ Home, nhấn nút Delete trong nhóm Cells.","Nhấn chuột phải lên vùng đang chọn, chọn lệnh Delete.","Nhấn phím BackSpace."],"correct":0},{"id":"C.IV.13","question":"Trong Excel 2016, Phát biểu nào sau đây là sai?","options":["Tất cả các hàm trong Microsoft Excel 2016 đều có đối số.","Để lập trình công thức tính toán thì phải bắt buộc nhập dấu = ở đầu.","Các tham số trong hàm được phân cách nhau bằng dấu phẩy hoặc dấu chấm phẩy tùy theo cách thiết lập.","Trong một công thức có thể sử dụng nhiều hàm."],"correct":0},{"id":"C.IV.14","question":"Trong Excel 2016, muốn sắp xếp danh sách dữ liệu theo thứ tự tăng (giảm), ta thực hiện như thế nào?","options":["Data – Sort.","Tools – Sort.","File – Sort.","Format - Sort."],"correct":0},{"id":"C.IV.15","question":"Trong Excel 2016, lệnh nào sau đây trên tab View, dùng trong trường hợp cần mở nhiều cửa sổ bảng tính cùng một lúc để tham khảo qua lại?","options":["Switch Windows.","Freeze Panes.","New Window.","Split."],"correct":0},{"id":"C.IV.16","question":"Trong Excel 2016, lệnh nào sau đây thể hiện thông tin chi tiết của tập tin hiện hành?","options":["Info.","Share.","Save As.","Print."],"correct":0},{"id":"C.IV.17","question":"Trong Excel 2016, Phím nào dùng để bật tắt các phím mũi tên di chuyển giữa các ô khi đang sử dụng?","options":["Scroll Lock.","Caps Lock.","Pg Up.","Pg Dn."],"correct":0},{"id":"C.IV.18","question":"Trong Excel 2016, Chức năng nào sau đây được sử dụng để điền dữ liệu vào ô dựa trên những dữ liệu của các ô khác hoặc theo mẫu?","options":["Auto Fill.","Range Fill.","Data Fill.","Duplicate Fill."],"correct":0},{"id":"C.IV.19","question":"Phần mềm nào dưới đây không phải là phần mềm bảng tính điện tử?","options":["Open Office Write.","Apple iWorks – Apple Number.","Microsoft Excel 2016.","Open Office Calc."],"correct":0},{"id":"C.IV.20","question":"Phần mềm nào dưới đây là phần mềm bảng tính trực tuyến?","options":["Google Sheets.","Microsoft Excel 2016.","Apple iWorks – Apple Number.","Open Office Calc."],"correct":0},{"id":"C.IV.21","question":"Sản phẩm bảng tính Online của Microsoft là gì?","options":["Microsoft Excel Online.","Microsoft Excel 2016.","Office – Calc Online.","Google Sheets."],"correct":0},{"id":"C.IV.22","question":"Phần mở rộng của tập tin Open Office Calc hiện tại là gì?","options":[".ods.",".xlsx.",".xls.",".docx."],"correct":0},{"id":"C.IV.23","question":"Khi thoát khỏi Open Office Calc, xuất hiện hộp thoại hỏi bạn có muốn lưu File này không? sẽ có 3 Button lựa chọn thì lựa chọn nào sau đây là đúng?","options":["Save / Discard / Abort.","Save / Discard / Cancel.","Yes / No / Abort.","Yes / No / Cancel."],"correct":0},{"id":"C.IV.24","question":"Trong Excel 2016, để di chuyển con trỏ về ô cuối cùng có chứa dữ liệu ta sử dụng phím tắt nào sau đây?","options":["Nhấn tổ hợp phím Ctrl + End.","Nhấn tổ hợp phím Ctrl + Home.","Nhấn phím Home.","Nhấn phím End."],"correct":0},{"id":"C.IV.25","question":"Trong Excel 2016, Phím tắt \"Ctrl + Phím mũi tên phải\" dùng để làm gì?","options":["Di chuyển con trỏ về phía rìa phải của vùng dữ liệu hiện thời.","Di chuyển con trỏ về phía phải 1.","Di chuyển con trỏ về phía rìa phải của bảng tính.","Di chuyển con trỏ về phía rìa phải của ô."],"correct":0},{"id":"C.IV.26","question":"Trong Excel 2016, để di chuyển đến ô kế sau ta sử dụng phím nào sau đây?","options":["Nhấn tổ hợp phím Shift + Tab.","Nhấn phím Tab.","Nhấn phím PgUp.","Nhấn phím PgDn."],"correct":0},{"id":"C.IV.27","question":"Trong các dạng địa chỉ sau đây, địa chỉ nào là địa chỉ tuyệt đối tại cột, tương đối tại hàng?","options":["$B1:$D10.","$B$1:$D$10.","B$1$ $10$.","B$1 $10."],"correct":0},{"id":"C.IV.28","question":"Trong Excel 2016, để ẩn cột, ta thực hiện thao tác nào sau đây?","options":["Thẻ Home / Cells / Format / Hide&Unhide / Hide Columns.","Thẻ Formulas / Cells / Format / Hide&Unhide / Hide Columns.","Thẻ Data / Cells / Format / Hide&Unhide / Hide Columns.","Thẻ View / Cells / Format / Hide&Unhide / Hide Columns."],"correct":0},{"id":"C.IV.29","question":"Trong Excel 2016, để giữ cố định hàng hoặc cột trong cửa sổ bảng tính, ta định vị con trỏ tại ô dưới hàng và bên phải cần cố định và thực hiện thao tác nào sau đây?","options":["Thẻ View / Freeze Panes.","Thẻ Review / Freeze Panes.","Thẻ Page Layout / Freeze Panes.","Thẻ Home / Freeze Panes."],"correct":0},{"id":"C.IV.30","question":"Trong Excel 2016, để thực hiện xuống dòng văn bản trong một ô ta sử dụng phím tắt nào sau đây?","options":["Nhấn tổ hợp phím Alt + Enter.","Nhấn phím Enter.","Nhấn tổ hợp phím Shift + Enter.","Nhấn tổ hợp phím Ctrl + Enter."],"correct":0},{"id":"C.IV.31","question":"Trong Excel 2016, chức năng Wrap Text dùng để làm gì?","options":["Tự động hiển thị xuống hàng văn bản khi chiều dài của ô chứa văn bản nhỏ hơn văn bản.","Canh lề văn bản.","Lưu văn bản.","Định dạng Font chữ."],"correct":0},{"id":"C.IV.32","question":"Trong Excel 2016, để thực hiện gộp nhiều ô thành 1 ô ta thực hiện lệnh nào sau đây?","options":["Merge and Center.","Split Cell.","Merge Cells.","Join Cells."],"correct":0},{"id":"C.IV.33","question":"Trong Excel 2016, Cột tiếp theo sau cột Z trong một bảng tính là cột nào?","options":["AA.","Z1.","ZA.","ZZ."],"correct":0},{"id":"C.IV.34","question":"Trong Excel 2016, thành phần thứ 3 trong hàm HLOOKUP là gì?","options":["Dòng tham chiếu để lấy kết quả.","Cách dò.","Bảng dò.","Cột tham chiếu để lấy kết quả."],"correct":0},{"id":"C.IV.35","question":"Trong Excel 2016, lựa chọn nào sau đây là đúng khi sao chép địa chỉ tuyệt đối?","options":["Không đổi.","Thay đổi theo.","Cột thay đổi, dòng không đổi.","Dòng thay đổi, cột không đổi."],"correct":0},{"id":"C.V.1","question":"Trong PowerPoint 2016, các hiệu ứng động dạng Entrance(màu xanh lá) là hiệu ứng gì?","options":["Xuất hiện.","Biến mất.","Nhấn mạnh.","Di chuyển."],"correct":0},{"id":"C.V.2","question":"Trong PowerPoint 2016, các hiệu ứng động dạng Exit (màu đỏ) là hiệu ứng gì?","options":["Biến mất.","Nhấn mạnh.","Xuất hiện.","Di chuyển."],"correct":0},{"id":"C.V.3","question":"Trong PowerPoint 2016, khẳng định nào sau đây về vùng ghi chú (Note Page) là sai?","options":["Có thể chèn các đối tượng hình ảnh vào vùng ghi chú.","Không được hiển thị khi thuyết trình ở chế độ bình thường.","Có thể in vùng ghi chú khi in bài thuyết trình.","Người thuyết trình không thể xem nội dung trong vùng ghi chú khi bắt đầu thuyết trình."],"correct":0},{"id":"C.V.4","question":"Trong PowerPoint 2016, chức năng Photo Album được dùng để làm gì?","options":["Tạo một danh sách ảnh để sử dụng cho buổi trình chiếu.","Lưu tập tin trình chiếu dưới dạng danh sách các ảnh để xem.","Chèn 1 đối tượng hình ảnh vào Slide.","Đóng gói các slide trình chiếu thành một tập tin ảnh."],"correct":0},{"id":"C.V.5","question":"Trong PowerPoint 2016, chức năng Duration trong hiệu ứng chuyển Slide có ý nghĩa gì?","options":["Thời gian để Slide xuất hiện hoàn chỉnh.","Thời gian chờ để chạy qua Slide khác.","Thời gian để kết thúc Slide.","Thời gian chờ để chạy hiệu ứng cho các đối tượng trong slide."],"correct":0},{"id":"C.V.6","question":"Trong PowerPoint 2016, chức năng Effect Option được dùng để làm gì?","options":["Thay đổi hướng di chuyển của hiệu ứng.","Thêm hiệu ứng động cho đối tượng.","Thêm hiệu ứng chuyển Slide.","Thêm liên kết cho đối tượng."],"correct":0},{"id":"C.V.7","question":"Trong PowerPoint 2016, khi chèn một đối tượng âm thanh vào Slide, chức năng nào trong thẻ PlayBack được dùng để chạy bài nhạc qua tất cả các Slide?","options":["Start - Play across slides.","Start - On Click.","Loop Until Stopped.","Enter – Play across slides."],"correct":0},{"id":"C.V.8","question":"Trong PowerPoint 2016, thành phần nào không thuộc một slide?","options":["Slide Header Area.","Slide Footer Area.","Content.","Title."],"correct":0},{"id":"C.V.9","question":"Trong PowerPoint 2016, mục đích chính của chế độ xem Slide Sorter là gì?","options":["Sắp xếp thứ tự các Slide một cách dễ dàng.","Thiết kế các nội dung trong Slide một cách dễ dàng.","Xem bài thuyết trình dưới góc nhìn người nói.","Xem bài thuyết trình dưới góc nhìn khán giả."],"correct":0},{"id":"C.V.10","question":"Trong PowerPoint 2016, âm thanh đưa vào bài trình diễn thì sao?","options":["Thực hiện được cả khi tạo hiệu ứng động và hiệu ứng chuyển trang.","Thực hiện được chỉ khi tạo hiệu ứng chuyển trang giữa các slide.","Thực hiện được chỉ khi tạo hiệu ứng động cho đối tượng trong slide.","Không thực hiện được cả khi tạo hiệu ứng động và hiệu ứng chuyển trang."],"correct":0},{"id":"C.V.11","question":"Trong PowerPoint 2016, sử dụng siêu liên kết (Hyperlink) sẽ cho phép người dùng liên kết đến (trường hợp máy tính đang có kết nối Internet) trường hợp nào?","options":["Tất cả các tập tin, các slide đã có trong máy và các trang Web.","Chỉ các trang Web có trên mạng.","Chỉ các slide đã có trong tập tin thuyết trình đang soạn thảo.","Chỉ các tập tin có sẵn trong các ổ đĩa của máy tính đang soạn thảo."],"correct":0},{"id":"C.V.12","question":"Trong PowerPoint 2016,  khi tạo hiệu ứng động cho 2 đối tượng A và B trong một Slide, người thiết kế đã xác lập thời gian để B tự động xuất hiện sau A là 5 giây. Khi trình chiếu sẽ như thế nào?","options":["B luôn luôn xuất hiện sau A là 5 giây bất chấp người sử dụng có nhấp chuột hay không.","Khi A đã xuất hiện, cứ 5 giây sau thì B Xuất hiện 1 lần.","Sau khi A xuất hiện nếu người sử dụng nhấp chuột thì B lập tức xuất hiện.","Khi A đã xuất hiện nếu người sử dụng nhấp chuột thì 5 giây sau B mới xuất hiện."],"correct":0},{"id":"C.V.13","question":"Trong PowerPoint 2016, chức năng nào sau đây không có?","options":["Wrap Text.","SmartArt.","ClipArt.","Text Box."],"correct":0},{"id":"C.V.14","question":"Trong PowerPoint 2016, chức năng “Don’t show on title slide” trong Header & footer có tác dụng gì?","options":["Không hiển thị Header & Footer ở tất cả các Slide có kiểu layout là title Slide.","Không hiểu thị Header & Footer ở Slide đầu tiên.","Không hiểu thị Header & Footer khi trình chiếu.","Không hiển thị Header & Footer khi thiết kế Slide nhưng sẽ hiển thị khi trình chiếu."],"correct":0},{"id":"C.V.15","question":"Trong PowerPoint 2016, chức năng Reset trong Tab Slides của thẻ Home dùng để làm gì?","options":["Xóa định dạng văn bản: Màu sắc, kích cỡ… của văn bản được định dạng.","Xóa văn bản.","Quay lại Slide trước đó.","Tạo 1 Slide mới."],"correct":0},{"id":"C.V.16","question":"Trong PowerPoint 2016, để thực hiện chia cột văn bản trong Slide, tại nhóm Paragraph ta chọn mục nào sau đây?","options":["Add or Remove Columns.","Insert Columns.","PageLayout Columns.","Add Columns."],"correct":0},{"id":"C.V.17","question":"Trong PowerPoint 2016, để thay đổi định dạng viền của đối tượng, ta chọn đối tượng và chỉnh sửa trong đối tượng nào sau đây?","options":["Shape Outline.","Shape Fill.","Shape Effects.","Shape Options."],"correct":0},{"id":"C.V.18","question":"Nhóm đối tượng nào chỉ có trong Microsoft PowerPoint 2016 mà Microsoft Word hoặc Microsoft Excel không có?","options":["Insert / Shape / Action Buttons.","Insert / Shape / Basic Shapes.","Insert / Shape / Equation Shapes.","Insert / Shape / Starts and Banners."],"correct":0},{"id":"C.V.19","question":"Trong PowerPoint 2016, chức năng Insert / Comment dùng để làm gì?","options":["Thêm chú thích vào một vị trí, đối tượng trong Slide.","Thêm hình vào một vị trí, đối tượng trong Slide.","Thay đổi kích thước một vị trí, đối tượng trong Slide.","Thay đổi định dạng một vị trí, đối tượng trong Slide."],"correct":0},{"id":"C.V.20","question":"Trong PowerPoint 2016, tổ hợp phim Shift + Alt + F9 được sử dụng để làm gì?","options":["Tất cả đều sai.","Tắt thanh thước kẻ.","Bật thanh thước kẻ.","Bật hoặc Tắt lưới."],"correct":0},{"id":"C.V.21","question":"Trong PowerPoint 2016, để thay đổi kiểu biểu đồ, bạn sử dụng lựa chọn nào?","options":["Chọn biểu đồ - Chart Tools - Change Chart Type hoặc Chuột phải vào biểu đồ - chọn Change Chart Type.","Chuột phải vào biểu đồ - chọn Change Chart Type.","Chọn Insert – Change Chart Type.","Chọn biểu đồ - Chart Tools - Change Chart Type."],"correct":0},{"id":"C.V.22","question":"Trong PowerPoint 2016, để ghi thời gian thực hiện trên từng slide trong bài trình chiếu, bạn sử dụng lựa chọn nào?","options":["Rehearse timing.","TimeSheet.","Ribbon Slide Show.","Transitions to this Slide."],"correct":0},{"id":"C.V.23","question":"Trong PowerPoint 2016, muốn kẽ đường viền màu xanh cho một Text Box trong giáo án điện tử, sau khi chọn Format -> Text Box, chọn thẻ Color and Lines và chọn gì?","options":["Chọn màu xanh trong ô Color ngay dưới chữ Line.","Chọn màu xanh trong ô Color ngay dưới chữ Line hoặc Fill đều sai.","Chọn màu xanh trong ô Color ngay dưới chữ Line hoặc Fill đều đúng.","Chọn màu xanh trong ô Color ngay dưới chữ Fill."],"correct":0},{"id":"C.V.24","question":"Trong PowerPoint 2016, sau khi đã chèn một bảng biểu vào slide, muốn chia một ô nào đó thành 2 ô ta thực hiện thao tác nào sau đây?","options":["Kích chuột phải vào ô đó và chọn Split Cells.","Chọn ô đó và nhắp chuột trái vào nút lệnh Split Cells trên thanh công cụ Tables and Borders.","Các cách nêu trong câu này đều đúng.","Chọn ô đó rồi chọn Table -> Split Cells."],"correct":0},{"id":"C.V.25","question":"Trong PowerPoint 2016, phát biểu nào sau đây là sai?","options":["Không thể tạo chỉ số trên (ví dụ số 2 trong X2) như trong MS-Word.","Có thể sao chép (copy/paste) một đoạn văn bản từ tập tin Word sang.","Có thể dùng WordArt để tạo chữ nghệ thuật trang trí cho bài thuyết trình.","Có thể chèn các biểu đồ vào bài thuyết trình."],"correct":0},{"id":"D.III.1","question":"Trong Word 2016, câu nào sau đây là không đúng trong trường hợp định dạng đoạn - Paragraph?","options":["Khi đặt một nút canh cột nó sẽ có tác dụng trên tất cả các đoạn văn bản trong tài liệu.","Khoảng cách canh cột mặc nhiên là ½ inch.","Bấm nút Center trên thanh công cụ sẽ canh đoạn hiện hành hoặc đã chọn vào giữa trang.","Hai loại canh lề đặc biệt là: First Line và Hanging trong Paragraph."],"correct":0},{"id":"D.III.2","question":"Trong Word 2016, đơn vị đo lường nào của thước không hỗ trợ?","options":["Pixel.","Centimeters.","Inches.","Points."],"correct":0},{"id":"D.III.3","question":"Khả năng nào sau đây không có trong Word 2016?","options":["Có thể viết chữ theo hướng xéo trong một ô.","Có thể vẽ đường viền theo kiểu răng cưa.","Xoá các cạnh của bảng có thể dùng để trộn các ô (merge cells).","Vẽ các cạnh của bảng (draw table) có thể dùng để tách các ô (split cells)."],"correct":0},{"id":"D.III.4","question":"Trong Word 2016, câu nào sau đây sai?","options":["Có thể chia cột cho văn bản trong đối tượng Shape.","Có thể nhóm (group) các đối tượng vẽ với nhau.","Có thể chuyển đổi từ đối tượng vẽ này thành đối tượng vẽ khác nhanh chóng.","Có thể chèn văn bản (text) vào hầu hết đối tượng vẽ (shape)."],"correct":0},{"id":"D.III.5","question":"Trong Word 2016, chức năng nào dùng để ngắt cột?","options":["Chọn thẻ Page  Layout - Breaks - Column.","Chọn thẻ Page Layout - Columns.","Sử dụng phím tắt Ctrl+Enter.","Chọn thẻ Insert - Page Break."],"correct":0},{"id":"D.III.6","question":"Trong Word 2016, sau khi chọn toàn bộ văn bản trong bảng (table) và bấm nút Delete thì chuyện gì sẽ xảy ra?","options":["Chỉ xóa toàn bộ văn bản.","Xóa toàn bộ văn bản và table.","Chỉ xóa toàn bộ định dạng.","Chỉ xóa table."],"correct":0},{"id":"D.III.7","question":"Trong Word 2016, chức năng Home → Clear All Formatting được sử dụng để?","options":["Loại bỏ toàn bộ định dạng.","Định dạng ký tự.","Xóa văn bản.","Định dạng văn bản."],"correct":0},{"id":"D.III.8","question":"Trong Word 2016, để đếm các giá trị ở các ô phía dưới trong Table thì dùng hàm nào?","options":["Count(Below).","Count(Above).","Count(Left).","Count(Right)"],"correct":0},{"id":"D.III.9","question":"Trong Word 2016, bạn vô tình nhấn phím Caps Lock và bắt đầu đánh 5 ký tự viết hoa. Tùy chọn nào trong menu Change Case có thể giúp bạn đưa số ký tự này về kiểu viết văn thông thường?","options":["Sentence case.","Lowercase.","Uppercase.","Capitalize Each"],"correct":0},{"id":"D.III.10","question":"Trong Word 2016, để sao chép các thuộc tính và định dạng của một phần văn bản đã chọn sang một phần khác trong văn bản, dùng lệnh nào sau đây trong nhóm Clipboard?","options":["Format Painter.","Copy / Paste bình thường.","Format Copy.","Duplicate format."],"correct":0},{"id":"D.III.11","question":"Trong Word 2016, lệnh View Gridlines nằm ở đâu trên Table Tools Ribbon?","options":["Layout tab, Table.","Design tab, Table Styles.","Design tab, Borders.","Layout tab, Rows & Columns."],"correct":0},{"id":"D.III.12","question":"Trong Word 2016, lệnh Cell Margin nằm ở đâu?","options":["Table Tools, Layout tab, Alignment.","Menu, Design tab, Document Formatting.","Table Tools, Design tab, Borders.","Table Tools, Layout tab, Cell Size."],"correct":0},{"id":"D.III.13","question":"Trong Word 2016, lệnh nào cho phép bạn điều chỉnh khoảng cách giữa các dòng văn bản?","options":["Paragraph Spacing.","Effects.","Themes.","Position."],"correct":0},{"id":"D.III.14","question":"Trong Word 2016, tùy chọn AutoCorrect nằm ở đâu?","options":["File, Options, Proofing.","Review, Define.","File, Options, General.","View, Macro."],"correct":0},{"id":"D.III.15","question":"Trong Word 2016, muốn chèn một cột bên trái vị trí ô, sau khi chọn vị trí ô ta thực hiện thao tác nào sau đây?","options":["Kích chuột phải chọn Insert / Insert Columns to the Left.","Kích chuột phải chọn Insert / Insert Columns to the Right.","Kích chuột phải chọn Insert / Insert Rows to the Left.","Kích chuột phải chọn Insert / Insert Rows to the Right."],"correct":0},{"id":"D.III.16","question":"Trong Word 2016, muốn chèn một hàng bên dưới vị trí ô, sau khi chọn vị trí ô ta thực hiện thao tác nào sau đây?","options":["Kích chuột phải chọn Insert / Insert Rows Below.","Kích chuột phải chọn Insert / Insert Rows Above.","Kích chuột phải chọn Insert / Insert Rows to the Left.","Kích chuột phải chọn Insert / Insert Rows to the Right."],"correct":0},{"id":"D.III.17","question":"Trong Word 2016, muốn định dạng chỉ số trên cho văn bản ta dùng tổ hợp phím tắt nào trong các tổ hợp phím tắt sau đây?","options":["Nhấn tổ hợp phím Ctrl + Shift + =.","Nhấn tổ hợp phím Ctrl + =.","Nhấn tổ hợp phím Shift + =.","Nhấn tổ hợp phím Ctrl + Alt + =."],"correct":0},{"id":"D.III.18","question":"Trong Word 2016, để định dạng khoảng cách giữa các dòng trong một đoạn văn là 1.5 dòng ta sử dụng phím tắt nào sau đây?","options":["Nhấn tổ hợp phím Ctrl + 5.","Nhấn tổ hợp phím Ctrl + 2.","Nhấn tổ hợp phím Ctrl + 1.5.","Nhấn tổ hợp phím Ctrl + 1."],"correct":0},{"id":"D.III.19","question":"Trong Word 2016, để khai báo thời gian tự lưu, ta thực hiện như thế nào?","options":["File / Option.","View / Option.","Home / Option.","Layout / Option."],"correct":0},{"id":"D.III.20","question":"Trong Word 2016, để làm ẩn thanh Ribbon, thực hiện thao tác gì?","options":["Nhấp vào biểu tượng Minimize the Ribbon.","Nhấp đôi chuột vào thanh Ribbon.","Chọn thẻ File / Minimize the Ribbon.","Trong Word 2016 không có chức năng này."],"correct":0},{"id":"D.III.21","question":"Trong Word 2016, để kích hoạt bảng điều hướng Navigation Pane, thực hiện thao tác gì?","options":["Chọn thẻ View / Navigation Pane.","Chọn thẻ Home / Navigation Pane.","Chọn thẻ Insert / Navigation Pane.","Chọn thẻ Review / Navigation Pane."],"correct":0},{"id":"D.III.22","question":"Mở một tài liệu đã có trong Word 2016, sau đó xoá 1 đoạn văn bản, để giữ nguyên nội dung văn bản ban đầu, thực hiện thao tác gì?","options":["Tất cả (I), (II), (III) đều đúng.","Nhấn tổ hợp phím tắt Ctrl + Z. (I)","Đóng tập tin đó nhưng không lưu. (III)","Lưu lại tập tin với tên mới. (III)"],"correct":0},{"id":"D.III.23","question":"Trong Word 2016, thẻ Goto của hộp thoại tìm kiếm và thay thế (Find and Replace) có chức năng gì?","options":["Tất cả đều đúng.","Di chuyển con trỏ đến trang xác định.","Di chuyển con trỏ đến dòng xác định.","Di chuyển con trỏ đến Section xác định."],"correct":0},{"id":"D.III.24","question":"Trong Word 2016, mở hộp thoại Word 2016 Options, điều chỉnh các tùy chọn trong mục Quick Access Toolbar, có chức năng gì?","options":["Điều chỉnh việc hiển thị các chức năng trên thanh truy cập nhanh.","Điều chỉnh việc hiển thị các chức năng trên Ribbon.","Điều chỉnh việc ẩn hiện các thẻ (Tab) trên Ribbon.","Điều chỉnh việc thêm bớt các thẻ (Tab) trên Ribbon."],"correct":0},{"id":"D.III.25","question":"Trong Word 2016, để hiển thị đường biên lề, hiện lệnh thao tác gi?","options":["Chọn thẻ File / Options / Advanced / nhấp chọn Show Text Boundaries.","Chọn thẻ File / Options / Display / nhấp chọn Show Text Boundaries.","Chọn thẻ File / Options / Advanced / nhấp chọn Show Text ScreenTips.","Chọn thẻ File / Options / Proofing / nhấp chọn Show Text Boundaries."],"correct":0},{"id":"D.IV.1","question":"Trong Excel 2016, khi viết sai tên hàm trong tính toán, chương trình thông báo lỗi?","options":["#NAME?.","#VALUE!.","#N/A.","#DIV/0!."],"correct":0},{"id":"D.IV.2","question":"Trong Excel 2016, kiểu định dạng hiển thị dữ liệu ngày \"Monday 08-Oct-2016\" được áp dụng định dạng nào?","options":["dddd dd-mmm-yyyy.","dddd dd-mm-yy.","ddd dd-mm-yyyy.","ddd d-m-yy."],"correct":0},{"id":"D.IV.3","question":"Trong Excel 2016, để tìm các số thỏa điều kiện =5 hay =10, ta dùng hàm nào?","options":["Hàm IF và hàm OR.","Hàm IF và hàm AND.","Hàm IF và hàm NOT.","Hàm IF và ký tự &."],"correct":0},{"id":"D.IV.4","question":"Trong Excel 2016, công thức =AND(OR(FALSE,3>2),AND( TRUE,FALSE)) cho kết quả là gì?","options":["FALSE.","TRUE.","2.","3."],"correct":0},{"id":"D.IV.5","question":"Trong Excel 2016, giải thích nào sau đây là sai?","options":["#N/A! Là công thức đưa vào bị lỗi.","#DIV/0!: chia cho giá trị 0.","#NAME? là Excel không hiểu các tên tham khảo đến.","#REF! là tham khảo đến vùng không hợp lệ."],"correct":0},{"id":"D.IV.6","question":"Trong Excel 2016, công thức MIN(2*4,24,6,9-3) cho kết quả là gì?","options":["6.","8.","2.","3."],"correct":0},{"id":"D.IV.7","question":"Trong Excel 2016, công thức LEFT (\"DANG THI TIN HOC\", 3) cho kết quả là gì?","options":["DAN.","THI TIN HOC.","HOC.","THI."],"correct":0},{"id":"D.IV.8","question":"Trong Excel 2016, công thức IF(AND(5>3,2>=2),2,3) cho kết quả là gì?","options":["2.","3.","Công thức có lỗi cú pháp.","FALSE."],"correct":0},{"id":"D.IV.9","question":"Trong Excel 2016, công thức SUM(7, 5, -3, 2, 9, -4) cho kết quả là gì?","options":["16.","23.","22.","30."],"correct":0},{"id":"D.IV.10","question":"Trong Excel 2016, tại ô A2 có sẵn dữ liệu là dãy kí tự \"Tin hoc co ban\", tại ô B2 gõ vào công thức =LOWER(A2) cho kết quả là gì?","options":["tin hoc co ban.","Tin hoc Co ban.","Tin Hoc Co Ban.","TIN HOC CO BAN."],"correct":0},{"id":"D.IV.11","question":"Trong Excel 2016, hàm nào sau đây cho phép tính tổng các giá trị kiểu số thỏa mãn một điều kiện cho trước?","options":["SUMIF.","SUM.","COUNTIF.","COUNT."],"correct":0},{"id":"D.IV.12","question":"Trong Excel 2016, cú pháp hàm SUMIF nào là đúng?","options":["SumIf(range, criteria,[sum_range]).","SumIf( criteria,range,[sum_range]).","SumIf(range).","SumIf(range,criteria)."],"correct":0},{"id":"D.IV.13","question":"Trong Excel 2016, công thức = MAX(20,MIN(5,100)) cho kết quả là gì?","options":["20.","5.","100.","#N/A."],"correct":0},{"id":"D.IV.14","question":"Trong Excel 2016, công thức nào sau đây sẽ cho lỗi #VALUE!?","options":["=MAX(\"A\",13,4).","=COUNTIF(D7:D18,\"A\").","=COUNTA(\"A\",13,4).","=COUNTA(\"A\",13,4)."],"correct":0},{"id":"D.IV.15","question":"Trong Excel 2016, công thức =\"Tin Hoc,\"&ABS(-10) cho kết quả là gì?","options":["Tin Hoc,10.","Tin Hoc,-10.","Tin Hoc,&10.","Tin Hoc,&-10."],"correct":0},{"id":"D.IV.16","question":"Trong Excel 2016, công thức =MAX(20,7)+MOD(20,7)+ MIN(20,7) cho kết quả là gì?","options":["35.","25.","52.","30."],"correct":0},{"id":"D.IV.17","question":"Trong Excel 2016, công thức =2+(5*2)+SQRT(9) cho kết quả là gì?","options":["15.","17.","20.","25."],"correct":0},{"id":"D.IV.18","question":"Trong Excel 2016, công thức =If(4>5,\"Sai\",\"Đúng\") cho kết quả là gì?","options":["Đúng.","Sai.","5.","4."],"correct":0},{"id":"D.IV.19","question":"Trong Excel 2016, Trần Thanh Phương có kết quả học tập cuối năm với ĐTB = 6.5, với công thức xếp loại học tập sau: =IF(ĐTB<5,\"Yếu\",IF(ĐTB<6.5,\"TBình\",IF(ĐTB<8,\"Khá\",\"Giỏi\"))) thì Phương được xếp loại gì?","options":["Khá.","Giỏi.","Tbình.","Yếu."],"correct":0},{"id":"D.IV.20","question":"Trong Excel 2016, tại ô A2 có sẵn giá trị chuỗi \"Tin hoc\", ô B2 có giá trị số 2008. Tại ô C2 gõ vào công thức = A2+B2 thì cho kết quả là gì?","options":["#VALUE!.","Tin hoc.","FALSE.","Tin hoc2008."],"correct":0},{"id":"D.IV.21","question":"Trong Excel 2016, tại ô D2 có công thức =B2*C2/100. Nếu sao chép công thức đến ô G6 thì sẽ có công thức nào sau đây?","options":["E6*F6/100.","E7*F7/100.","B6*C6/100.","E2*C2/100."],"correct":0},{"id":"D.IV.22","question":"Trong Excel 2016, công thức công thức: =lenght(Left(\"Tin Hoc Van Phong\",1)) cho kết quả là gì?","options":["#NAME?.","#VALUE!.","1.","#N/A."],"correct":0},{"id":"D.IV.23","question":"Trong Excel 2016, biểu thức =AND(5>4,6<9, OR(2<1,3>2)) cho kết quả là gì?","options":["TRUE.","#VALUE!.","FALSE.","#NAME?."],"correct":0},{"id":"D.IV.24","question":"Trong Excel 2016, biểu thức =IF(DTB>=5,“TB”,IF(DTB>=6.5,”Kha”,IF(DTB>=8, “Gioi”,”Yeu”))) cho kết quả là bao nhiêu nếu DTB=8?","options":["TB.","Gioi.","Yeu.","#VALUE!."],"correct":0},{"id":"D.IV.25","question":"Trong Excel 2016, AND, OR, NOT là thuộc nhóm hàm nào sau đây?","options":["Hàm logic.","Hàm Toán tử.","Hàm Quan hệ về logic.","Hàm quan hệ."],"correct":0},{"id":"D.IV.26","question":"Trong Excel 2016, công thức nào sau đây sẽ cho kết quả là giá trị FALSE?","options":["=OR(3+2=6,6>=3^2).","=IF(3>=INT(10/2),FALSE,TRUE).","=AND(MOD(4,2)=0,5>=3).","=OR(FALSE, TRUE)."],"correct":0},{"id":"D.IV.27","question":"Trong Excel 2016, khi yêu cầu của bài toán phát biểu rằng “Tính tổng lương của các cán bộ có mã là CNTT” thì ta phải sử dụng hàm nào sau đây?","options":["SUMIF.","COUNTA.","SUM.","COUNTIF."],"correct":0},{"id":"D.IV.28","question":"Trong Excel 2016, công thức: =ABS(-5)+1-SQRT(25) cho kết quả là gì?","options":["1.","0.","9.","-9"],"correct":0},{"id":"D.IV.29","question":"Trong Excel 2016, Tại ô B2 chứa công thức =$B1. Sau khi di chuyển đến ô E4 thì công thức sẽ là gì?","options":["=$B3.","=$B1.","=$E1.","=$E4."],"correct":0},{"id":"D.IV.30","question":"Trong Excel 2016, công thức: = “Tin học”& “,”&MOD(17,3) cho kết quả là gì?","options":["#NAME?.","Tin học.","Tin hoc,2.","Tin hoc &2."],"correct":0},{"id":"D.IV.31","question":"Trong Excel 2016, để xác định độ dài của chuỗi ta dùng hàm nào sau đây?","options":["LEN.","SUM.","Total.","Count."],"correct":0},{"id":"D.IV.32","question":"Trong Excel 2016, công thức =ROUND(MAX(12.114, 12.117),2) cho kết quả là gì?","options":["12.12.","12.13.","12.1.","12.2."],"correct":0},{"id":"D.IV.33","question":"Trong Excel 2016, công thức =AND(5>4, 6<9, 2<1) cho kết quả là gì?","options":["FALSE.","TRUE.","#VALUE!.","#NAME?."],"correct":0},{"id":"D.IV.34","question":"Trong Excel 2016, tại ô A1 của bảng tính lưu trị ngày 15/08/2016. Kết quả hàm =MONTH(A1) là bao nhiêu?","options":["8.","15.","2016.","08/2016."],"correct":0},{"id":"D.IV.35","question":"Trong Excel 2016, công thức =Max(2,3,7,9,e) cho kết quả là gì?","options":["#NAME?.","#VALUE!.","9.","2."],"correct":0},{"id":"D.IV.36","question":"Trong Excel 2016,  ô A2 gõ vào công thức =IF(100>150,100,IF(100<150,200,300)) thì kết quả nhận được tại ô A2 là bao nhiêu?","options":["200.","100.","300.","150."],"correct":0},{"id":"D.IV.37","question":"Trong Excel 2016, tại ô A2 gõ vào công thức =IF(TRUE,IF(10<15,10,20),30) thì kết quả nhận được tại ô A2 là bao nhiêu?","options":["10.","15.","20.","30."],"correct":0},{"id":"D.IV.38","question":"Trong Excel 2016, công thức =IF(LEN(\"CNTT 123\")=9,20,10) cho kết quả là gì?","options":["10.","20.","9.","123."],"correct":0},{"id":"D.IV.39","question":"Trong Excel 2016, công thức =INT(-12.11) cho kết quả là gì?","options":["-13.","-12.","12.1.","12."],"correct":0},{"id":"D.IV.40","question":"Trong Excel 2016, tại ô A1 chứa giá trị ngày tháng năm sinh của học sinh Nguyễn Văn Bình là 12/10/1978, công thức nào sau đây cho kết quả là số tuổi của học sinh Bình?","options":["=Year(Today())-Year(A1).","=Year(Today())-A1.","=2026-A1.","=Now()-A1."],"correct":0},{"id":"D.V.1","question":"Trong PowerPoint 2016, phát biểu nào sau đây là sai?","options":["Có thể chuyển đổi qua lại giữa SmartArt và Shapes.","SmartArt sẽ tự động tùy chỉnh kích cỡ chữ để vừa với kích thước.","Tùy chỉnh các đối tượng SmartArt cũng tương tự như Shapes.","Có thể thểm/bớt các thành phần trong SmartArt tùy ý."],"correct":0},{"id":"D.V.2","question":"Trong PowerPoint 2016, phát biểu nào sau đây là sai?","options":["Có thể thiết lập các thông số như thời gian bắt đầu, sự kiện bắt đầu của một slide transition cho một slide.","Có nhiều dạng slide transition.","Một slide chỉ có tối đa một dạng transition.","Không thể sắp xếp thứ tự chạy của các slide transition nếu không đổi thứ tự các slide."],"correct":0},{"id":"D.V.3","question":"Trong PowerPoint 2016, phát biểu nào sau đây là sai?","options":["Không thể tạo một dạng layout mới cho một tập tin trình chiếu trong Slide Master.","Có thể tạo các liên kết (hyperlink) đến các slide trong cùng một tập tin.","Có thể nén video, audio dùng Compress Media.","Có thể lưu một tập tin trình chiếu thành một thiết kế (design theme)."],"correct":0},{"id":"D.V.4","question":"Trong PowerPoint 2016, phát biểu nào sau đây là sai?","options":["Khi trình chiếu, phần notes của từng slide được hiện ra trên màn hình trình chiếu.","Có thể chia bài thuyết trình thành nhiều section.","Vùng Content có thể chứa một bảng (table).","Có thể dùng nhiều layout khác nhau trong bài thuyết trình."],"correct":0},{"id":"D.V.5","question":"Trong PowerPoint 2016, phát biểu nào sau đây là sai?","options":["Sau khi đã tạo hiệu ứng động cho một đối tượng nào đó ta không thể thay đổi kiểu hiệu ứng cho đối tượng đó.","Khi tạo hiệu ứng động cho một khối văn bản ta có thể cho xuất hiện lần lượt từng từ trong khối văn bản khi trình chiếu.","Có thể thực hiện hiệu ứng chuyển trang cho 1 slide bất kỳ trong bài trình diễn.","Có thể thực hiện hiệu ứng chuyển trang cho tất cả các slide trong bài trình diễn."],"correct":0},{"id":"D.V.6","question":"Trong PowerPoint 2016, để vẽ sơ đồ phân cấp tổ chức của Công ty ta thường chọn đối tượng nào sau đây trong SmartArt?","options":["Hyerarchy.","List.","Process.","Cycle."],"correct":0},{"id":"D.V.7","question":"Trong PowerPoint 2016, để một bài thuyết trình đạt hiệu quả cao, chúng ta cần quan tâm tới vấn đề nào đầu tiên?","options":["Đối tượng nghe bài thuyết trình.","Phương pháp thuyết trình.","Hình thức thuyết trình.","Nắm vững nội dung cần thuyết trình."],"correct":0},{"id":"D.V.8","question":"Trong PowerPoint 2016, để đưa nội dung tập tin văn bản đã có vào bài trình chiếu, bạn sử dụng lựa chọn nào?","options":["Home - New Slide - chọn Slides from Outline.","Browse for Themes.","Design - chọn Browse for Themes….","Design – Insert - Office."],"correct":0},{"id":"D.V.9","question":"Trong PowerPoint 2016, để chèn đoạn phim bằng điều khiển Windows Media Player, ta nhập đường dẫn và tên tập tin vào thuộc tính nào?","options":["URL.","Caption.","Path.","Movie."],"correct":0},{"id":"D.V.10","question":"Trong PowerPoint 2016, để chỉnh sửa độ sáng tối và độ tương phản của ảnh, bạn sử dụng lựa chọn nào trong Picture Tools?","options":["Corrections - Brightness/Contrast.","Corrections - Sharpen/Soften.","Corrections – Light Pictures.","Corrections - Compress Pictures."],"correct":0},{"id":"D.V.11","question":"Trong PowerPoint 2016, thao tác chọn Insert -> Movies and Sounds để làm gì?","options":["Có thể chèn âm thanh hoặc phim vào bài thuyết trình.","Chỉ được phép chèn âm thanh vào bài thuyết trình.","Chỉ được phép chèn hình ảnh vào bài thuyết trình.","Chỉ được phép chèn phim vào bài thuyết trình."],"correct":0},{"id":"D.V.12","question":"Trong PowerPoint 2016, để căn lề cho một đoạn văn bản nào đó trong giáo án điện tử đang thiết kế, trước tiên ta thực hiện thao tác nào sau đây?","options":["Chọn cả đoạn văn bản cần căn lề.","Chọn 1 dòng bất kỳ trong đoạn  văn bản cần căn lề.","Đưa con trỏ văn bản vào giữa đoạn  văn bản cần căn lề.","Cả 3 cách trên đều được."],"correct":0},{"id":"D.V.13","question":"Trong PowerPoint 2016, cách nào sau đây không phải là cách tạo ra một bản trình diễn mới (Presentation)?","options":["Dùng chức năng Scan-In Slides.","Dùng design template.","Tạo một bản trình diễn trắng (blank Presentation).","Dùng chức năng AutoContent Wizard."],"correct":0},{"id":"D.V.14","question":"Trong PowerPoint 2016, kỹ thuật nào sau đây không phải để di chuyển xung quanh một bản trình diễn?","options":["Chọn Edit → Move từ menu và chỉ định slide bạn muốn tới.","Nhấn + để di chuyển về slide đầu tiên.","Nhấn để di chuyển đến slide kế tiếp.","Dùng thanh cuộn đứng để di chuyển lên hoặc xuống."],"correct":0},{"id":"D.V.15","question":"Trong PowerPoint 2016, để tạo liên kết chuyển đến trang kế tiếp ta thực hiện thao tác nào?","options":["Chọn đối tượng cần tạo liên kết -> Insert -> Action ->  Hyperlink to -> Next slide.","Chọn đối tượng cần tạo liên kết -> Insert -> Custom Shows -> Slide -> Next slide.","Chọn đối tượng cần tạo liên kết -> Slide Show -> Action settings -> Slide -> Next slide.","Chọn đối tượng cần tạo liên kết -> Slide Show -> Custom Shows -> Hyperlink to -> Next slide."],"correct":0},{"id":"D.V.16","question":"Trong PowerPoint 2016, để tạo liên kết chuyển đến trang bất kỳ ta thực hiện thao tác nào?","options":["Chọn đối tượng cần tạo liên kết -> Insert -> Action -> Hyperlink to -> Slide…","Chọn đối tượng cần tạo liên kết -> Insert -> Action-> Hyperlink to -> Next slide…","Chọn đối tượng cần tạo liên kết -> Insert -> Action-> Hyperlink to -> Custom Show…","Chọn đối tượng cần tạo liên kết -> Insert ->Custom Shows -> Hyperlink to -> URL…"],"correct":0},{"id":"D.V.17","question":"Trong PowerPoint 2016, phát biểu nào sau đây là sai?","options":["Tổ hợp phím Shift + F9 được sử dụng để Bật hoặc Tắt thanh thước kẻ.","Cho phép chèn Video từ các Web site.","Để xóa định dạng đoạn văn bản được chọn, vào Home chọn Clear All Formatting.","Cho phép trình diễn từ xa thông qua mạng internet."],"correct":0},{"id":"D.V.18","question":"Trong PowerPoint 2016, để chèn biểu tượng mặt cười Smiley Face ta thực hiện  thao tác nào?","options":["Vào Insert -> Shapes -> Smiley Face…","Vào View -> Shapes ->Smiley Face…","Vào Insert -> Smiley Face…","Vào View -> Smiley Face…"],"correct":0},{"id":"D.V.19","question":"Trong PowerPoint 2016 2016, hiệu ứng chuyển đổi các trang FADE thuộc nhóm nào sau đây?","options":["Subtle.","Dynamic Content.","Emphasis.","Exciting."],"correct":0},{"id":"D.V.20","question":"Trong PowerPoint 2016 2016,  hiệu ứng chuyển đổi các trang PAN thuộc nhóm nào sau đây?","options":["Dynamic Content.","Emphasis.","Exciting.","Subtle."],"correct":0},{"id":"D.VI.1","question":"Mục đích chính của việc đưa ra tên miền là gì?","options":["Dễ nhớ.","Tên miền đẹp hơn địa chỉ IP.","Thiếu địa chỉ IP.","Tên miền dễ xử lý bởi máy tính hơn."],"correct":0},{"id":"D.VI.2","question":"Hai người đã tạo được tài khoản thư miễn phí tại địa chỉ gmail.com. Phát biểu nào là sai?","options":["Mật khẩu mở hộp thư của hai người này phải khác nhau.","Hộp thư của cả hai đều nằm trên máy Mail Server của công ty Google.","Hai người này buộc phải lựa chọn hai tên đăng nhập khác nhau.","Người này có thể mở được hộp thư của người kia và ngược lại nếu như 2 người biết tên đăng nhập và mật khẩu của nhau."],"correct":0},{"id":"D.VI.3","question":"Người sử dụng không thể tự lập được hộp thư điện tử nào?","options":["Thư điện tử của trường HOTEC.","Google Mail.","Outlook Mail.","Hotmail."],"correct":0},{"id":"D.VI.4","question":"Để lưu hình ảnh từ Internet vào ổ đĩa với trình duyệt IExplorer, ta thực hiện thao tác nào sau đây?","options":["Right Click lên hình ảnh cần lưu - chọn Save Picture As.","Right Click lên hình ảnh cần lưu - chọn Save As Picture.","Chọn hình ảnh cần lưu - chọn Save Picture As.","Click lên hình ảnh cần lưu - chọn Save Picture As."],"correct":0},{"id":"D.VI.5","question":"Ngôn ngữ hiển thị trên các trang Web phụ thuộc vào yếu tố nào sau đây?","options":["Ngôn ngữ mà người thiết kế Web quy định.","Ngôn ngữ mà người truy cập quy định.","Web Server thuộc quốc gia nào.","Người truy cập thuộc quốc gia nào."],"correct":0},{"id":"E.III.1","question":"Trong Word 2016, Block Arrows, Stars and Banners, và Callouts là các ví dụ của nội dung nào?","options":["Các chủ đề Shapes.","Các kiểu trò chơi xây dựng của trẻ em.","Các chủ đề Clip art trong bộ sưu tập Microsoft Clip Gallery.","Một thuật ngữ kỹ thuật chưa xác định."],"correct":0},{"id":"E.III.2","question":"Trong Word 2016, để khai báo thời gian tự lưu văn bản, ta thực hiện như thế nào?","options":["Thẻ File - Options - Save chọn thời gian tại mục Save AutoRecover info every.","Thẻ Home - Options - Save chọn thời gian tại mục Save AutoRecover info every.","Thẻ View - Options - Save chọn thời gian tại mục Save AutoRecover info every.","Thẻ Insert - Options - Save chọn thời gian tại mục Save AutoRecover info every."],"correct":0},{"id":"E.III.3","question":"Trong Word 2016, để chèn header hoặc footer trên trang văn bản, ta thực hiện như thế nào?","options":["Thẻ Insert - Header and Footer - nhấn nút Header hoặc Footer.","Thẻ View - Header and Footer.","Thẻ Insert - Header and Footer.","Thẻ Format- Header and Footer."],"correct":0},{"id":"E.III.4","question":"Trong Word 2016, thao tác nào không thể tạo điểm dừng Tabs?","options":["Thẻ View – Tabs.","Thẻ Home - Paragraph - nhấn nút mũi tên bên dưới - Tabs.","Thẻ Page Layout - Paragraph - nhấn nút mũi tên bên dưới – Tabs.","Bấm chuột trái trên thanh thước tại vị trí muốn đặt Tab."],"correct":0},{"id":"E.III.5","question":"Trong Word 2016, để chèn biểu đồ vào văn bản, ta thực hiện  như thế nào?","options":["Thẻ Insert - Illustrations - Chart.","Thẻ References - Illustrations - Chart.","Thẻ Mailings - Illustrations - Chart.","Thẻ Review - Illustrations - Chart."],"correct":0},{"id":"E.III.6","question":"Trong Word 2016, phát biểu nào sau đây là đúng nhất?","options":["Bullets và Numbering đều có chức năng tương tự nhau là đánh dấu đầu mỗi đoạn văn.","Có thể đặt lại chỉ mục của chức năng Numbering nhưng phải qua trang văn bản khác.","Canh lề của chức năng Bullets khi được tạo ra là cố định và không thể thay đổi.","Không thể sử dụng hình ảnh trong máy tính trong chức năng Bullets."],"correct":0},{"id":"E.III.7","question":"Trong Word 2016 những phím tắt nào mở ra thẻ Go To trong hộp thoại Find and Repalce?","options":["Ctrl + G; F5.","Ctrl + G; F1.","Ctrl + R; F5.","Ctrl + R; F1."],"correct":0},{"id":"E.III.8","question":"Trong Word 2016, để thay đổi khoảng cách giữa hai đoạn văn bản ta thiết lập thuộc tính nào sau đây?","options":["Ô Before và After trong thẻ Layout.","Ô Before và After trong thẻ Design.","Ô Line Spacing trong thẻ Design.","Ô Line Spacing trong thẻ Layout"],"correct":0},{"id":"E.III.9","question":"Trong Word 2016, chức năng Mail Merge, thì ở bước (Step) thứ mấy là lựa chọn file nguồn?","options":["Step 3.","Step 4.","Step 2.","Step 5."],"correct":0},{"id":"E.III.10","question":"Trong Word 2016, vừa có chia cột (Columns) vừa có chữ rơi (Drop Cap) thì thực hiện như thế nào?","options":["Chia cột (Columns) trước Chữ rơi (Drop Cap) sau.","Chữ rơi (Drop Cap) trước Chia cột (Columns) sau.","Không thực hiện được.","Chia cột (Columns) hay Chữ rơi (Drop Cap) trước đều được."],"correct":0},{"id":"E.III.11","question":"Trong Word 2016, chức năng Clipboard có thể giữ bao nhiêu mục ở một thời gian nhất định?","options":["24.","6.","12.","18."],"correct":0},{"id":"E.III.12","question":"Trong Word 2016, quy trình thiết lập một tab mới là gì?","options":["Chọn vị trí, chọn loại tab, chọn vị trí trên thanh ruler.","Chọn loại tab, chọn vị trí trên thanh ruler.","Chọn vị trí, chọn loại tab.","Chọn vị trí, chọn vị trí trên thanh ruler."],"correct":0},{"id":"E.III.13","question":"Trong Word 2016, bạn có hai đoạn văn bản và không muốn chia ra trong nhiều trang. để làm điều này, bạn chọn tùy chọn nào trên thẻ Lines and Page Break?","options":["Keep With Next.","Widow / Orphan control.","Keep Lines Together.","Page Break Before."],"correct":0},{"id":"E.III.14","question":"Trong Word 2016, bạn có một đoạn văn bản và muốn đoạn đó luôn được in phía trên cùng của trang. để làm điều này, bạn chọn tùy chọn nào trên thẻ Line and Page Break?","options":["Page break before.","Widow / Orphan control.","Keep with next.","Keep lines together."],"correct":0},{"id":"E.III.15","question":"Trong Word 2016, muốn nhóm nhiều đối tượng hình vẽ thành một đối tượng sau khi vừa rã nhóm các đối tượng ta thực hiện thao tác nào sau đây?","options":["Kích chuột phải chọn Regroup.","Kích chuột phải chọn Ungroup.","Kích chuột phải chọn Group.","Format / Group."],"correct":0},{"id":"E.IV.1","question":"Trong Excel 2016, công thức =And(\"DaNang\"<>\"D*\",False) cho kết quả là gì?","options":["FALSE.","TRUE.","#VALUE!.","#N/A."],"correct":0},{"id":"E.IV.2","question":"Với bảng số liệu dưới đây trong Microsoft Excel 2016 công thức để tính lương tại ô C2 như thế nào với yêu cầu: Lương= HSL* Lương cơ bản và làm tròn chẵn đơn vị nghìn đồng?","options":["=ROUND(B2 *$B$4,-3).","=ROUND(B2 *B4,-3).","=ROUND(B2 *B$4,3).","=ROUND(B2 *B$4,-4)."],"correct":0},{"id":"E.IV.3","question":"Trong Excel 2016, công thức nào sau đây cho kết quả là giá trị TRUE?","options":["=AND(MOD(4,2)=0,5>=3).","=OR(3+2=6,5>3^2).","=IF(6>=4,FALSE,TRUE).","=AND(TRUE,FALSE)."],"correct":0},{"id":"E.IV.4","question":"Trong Excel 2016,ô A1 có giá trị bằng 9, ô A2 có giá trị bằng 10. Công thức =IF(NOT(OR(A1=9,A2<10)),5,MIN(A1:A2,4)) cho kết quả là gì?","options":["4.","5.","9.","10."],"correct":0},{"id":"E.IV.5","question":"Trong Excel 2016, công thức: =MAX(20,7)+INT(20/7)+MOD(20,7)+MIN(20,7) cho kết quả là gì?","options":["35.","20.","21.","18."],"correct":0},{"id":"E.IV.6","question":"Trong Excel 2016, công thức =NOT(AND(5>2;2>=2;9< 10)) cho kết quả là gì?","options":["FALSE.","TRUE.","#NAME?.","#N/A!."],"correct":0},{"id":"E.IV.7","question":"Trong Excel 2016, công thức =MOD(POWER(8,3),3) cho kết quả là gì?","options":["2.","3.","0.","8."],"correct":0},{"id":"E.IV.8","question":"Trong Excel 2016, công thức =power(2,3) + sum(2,6)/4 –5 cho kết quả là gì?","options":["5.","6.","6.5.","7."],"correct":0},{"id":"E.IV.9","question":"Trong Excel 2016, công thức =Mid(\"ABCDE\",3,2)&Right(Left(\"ABCDE\",4),2) cho kết quả là gì?","options":["CDCD.","BCBC.","BCDCD.","DEDE."],"correct":0},{"id":"E.IV.10","question":"Trong Excel 2016, tại ô A1 có giá trị là \"Tin hoc van phong ca 2\" và tại ô A2 có công thức =LEN(A1)- LEN(TRIM(MID(A1, 11,8))) cho kết quả là gì?","options":["15.","16.","14.","17."],"correct":0},{"id":"E.IV.11","question":"Trong Excel 2016, công thức =(INT(50/3)+MOD(50,3))(ABS(- 3)+MOD(50,3)) cho kết quả là gì?","options":["13.","14.","15.","16."],"correct":0},{"id":"E.IV.12","question":"Trong Excel 2016, công thức =\"Hội An,\"& Max(2004,2005) cho kết quả là gì?","options":["Hội An,2005.","Hội An,.","FALSE.","#NAME?."],"correct":0},{"id":"E.IV.13","question":"Trong Excel 2016, công thức = INT(20,3)- MOD(30,3)+SQRT(16)- ABS(-4) cho kết quả là gì?","options":["4.","3.","56.","6."],"correct":0},{"id":"E.IV.14","question":"Trong Excel 2016, tại ô A2 có giá trị là 6 và ô F2 có công thức =IF(A2>9,IF(A2>5,\"A\",\"B\"),\"C\") cho kết quả là gì?","options":["C.","A.","B Báo lỗi.","(trống)"],"correct":0},{"id":"E.IV.15","question":"Trong Excel 2016, công thức =MIN(MAX(1,7),2,MOD(8,5)) cho kết quả là gì?","options":["2.","1.","3.","7."],"correct":0},{"id":"E.V.1","question":"Trong PowerPoint 2016, chế độ trình chiếu Browsed by an individual (window) trong chức năng Set Up Slide Show tương đương với góc nhìn nào dưới đây?","options":["Reading View.","Normal.","Slide Sorter.","Slide Master."],"correct":0},{"id":"E.V.2","question":"Trong PowerPoint 2016, để trình chiếu không có giọng thuyết minh đi kèm, trong \"Set Up Show\", bạn sử dụng lựa chọn nào?","options":["Show without narration.","Show without animation.","Show without voice.","Show without sound."],"correct":0},{"id":"E.V.3","question":"Phát biểu nào sau đây mô tả chính xác nhất chức năng hoạt cảnh trong PowerPoint 2016 presentations?","options":["Bạn có thể tạo chuyển động cho văn bản và các đối tượng sao cho chúng xuất hiện trên slide bằng nhiều cách định sẵn (special effects).","Bạn có thể tạo chuyển động và chương trình Office Assistant sẽ hỗ trợ thực hiện.","Bạn có thể thêm các nhân vật hoạt hình vào slide để giúp vui mọi người.","Bạn có thể tạo chuyển động cho slide show và để nó tự chạy."],"correct":0},{"id":"E.V.4","question":"Trong PowerPoint 2016, mặc dù bạn có thể định dạng văn bản với bất kỳ màu sắc nào nhưng để tạo cho các slide một hình thức chuyên nghiệp hơn, ta có thể sử dụng lựa chọn nào?","options":["Sử dụng sơ đồ màu (color scheme) với các màu chuẩn.","Sử dụng cấu trúc tự tạo lập màu.","Sử dụng công cụ Fill Effects để tạo ra các màu theo kiểu Gradient.","Không phải các cách trên."],"correct":0},{"id":"E.V.5","question":"Trong PowerPoint 2016, một số AutoShapes có hình thoi màu vàng. Hình thoi đó là gì và có tác dụng ra sao?","options":["Tất cả các tác dụng đều đúng.","Đó là nút điều chỉnh, dùng để thay đổi hình dạng của đối tượng AutoShapes.","Đó là nút di chuyển, dùng để kéo đối tượng AutoShape tới một vị trí khác.","Đó là nút kích cỡ, dùng để thay đổi kích thước của đối tượng AutoShapes."],"correct":0},{"id":"E.VI.1","question":"Khi làm việc trên một dự án của trường học, việc làm một bài thuyết trình trực tuyến cho những đối tượng khác cùng biết là một ví dụ của nội dung gì?","options":["Chia sẻ thông tin.","Thu thập thông tin.","Tổ chức thông tin.","Kết nối đến ứng dụng khác."],"correct":0},{"id":"E.VI.2","question":"Siêu văn bản là gì?","options":["Là văn bản thường được tạo ra bởi ngôn ngữ HTML, tích hợp cả văn bản, âm thanh, hình ảnh.","Là văn bản soạn thảo trên máy tính.","Là văn bản được chỉnh sửa và được nhà nước quản lí.","Là văn bản cấp cao."],"correct":0},{"id":"E.VI.3","question":"Dịch vụ FTP được xây dựng trên loại máy chủ nào ?","options":["File server.","Mail Server.","Web Server.","Dịch vụ Chat- Online."],"correct":0},{"id":"E.VI.4","question":"Khi Chat – Online, máy Client chat cần ứng dụng nào sau đây để thực hiện?","options":["Một chương trình cài đặt trên máy Client.","Một trang Web.","Một Chat Server.","Một phần mềm của Microsoft Office."],"correct":0},{"id":"E.VI.5","question":"Loại phần mềm nào sau đây có xu hướng thâm nhập và cố gắng tạo các khe hở bảo mật để hacker có thể tấn công vào hệ thống mạng máy tính?","options":["Trojan Horse.","Virus File.","Worm.","Spyware."],"correct":0},{"id":"F.IV.1","question":"Trong Excel 2016, tại ô B2 có công thức: =C1-VLOOKUP(A3,$EE$10:$GG$12,3, 0)-$E2. Khi sao chép công thức này đến ô D4 thì ta có công thức như thế nào?","options":["=E3- VLOOKUP(C5,$EE$10:$GG$12,3,0)-$E4.","=C3- VLOOKUP(C5,$EE$10:$GG$12,3,0)-$E4.","=D3- VLOOKUP(C5,$EE$10:$GG$12,3,0)-$E4.","=D3- VLOOKUP(D5,$EE$10:$GG$12, 3,0)-$E4."],"correct":0},{"id":"F.IV.2","question":"Trong Excel 2016, tại ô B3 có công thức =D2+SUMIF(CC2:CC6,A5,EE2:EE6)-C$3 khi sao chép công thức này đến ô D5 thì ta có công thức như thế nào?","options":["=F4+SUMIF(CE4:CE8,C7,EG4:EG8)-E$3.","=F4+SUMIF(CE4:CE8,C8,EG4:EG8)-D$5.","=F4+SUMIF(CE4:CE8,C8,EG4:EG8)-D$3.","=F5+SUMIF(CE4:CE8,C8,EG4:EG8)-D$3."],"correct":0},{"id":"F.IV.3","question":"Trong Excel 2016, tại ô D10 có công thức =SUM($D2:$D9)*E2+VLOOKUP(A2,C13:D$17,2,0) nếu sao chép công thức này đến ô F12 cho kết quả là gì?","options":["=SUM($D4:$D11)*G4+VLOOKUP(C4,E15:F$17,2,0).","=SUM($D4:$D11)*G2+VLOOKUP(C4,E15:F$17,2,0).","=SUM($D4:$D11)*G4+VLOOKUP(C4,C13:D17,2,0).","=SUM($D2:$D9)*G4+VLOOKUP(C4,E15:F$17,2,0)."],"correct":0},{"id":"F.IV.4","question":"Trong Excel 2016, tại ô C1 có công thức =AA1+B1, khi ta sao chép công thức từ ô C1 đến ô E3 cho kết quả là gì?","options":["=AC3+D3.","=CC3+B1.","=AC1+B1.","=$C3+D3."],"correct":0},{"id":"F.IV.5","question":"Trong Excel 2016, hãy chọn câu đúng?","options":["=AND(NOT (6>5),OR(3>7,2>1)) cho kết quả là False.","=OR(5<6, AND(NOT(3>5),1<2)) cho kết quả là False.","=OR(7>ABS(-7), NOT(AND(2>8,1<2))) cho kết quả là False.","=AND(NOT (6>5),OR(3>7,2>1),7>ABS(-7)) cho kết quả là True."],"correct":0},{"id":"F.IV.6","question":"Trong Excel 2016, so sánh nào đúng?","options":["=sum(B1:B4) bằng với =sum(B1,B2:B3,B4).","=average(B1:B4) bằng với sum(B1:B4)/counta(B1:B4).","=average(B1:B3) bằng với  =(B1+B2+B3)/3.","=left(B1) bằng với =value(left(B1))."],"correct":0},{"id":"F.IV.7","question":"Trong Excel 2016, tại ô A1 có công thức =C5+SUMIF(B2:B6;A2;F2:F6)-C$7. Khi sao chép công thức này đến ô D7 thì cho kết quả là gì?","options":["=F11+SUMIF(E8:E12,D8,I8:I12)-F$7.","=F11+SUMIF(E8:E12,D7,I8:I12)-F$7.","=F11+SUMIF(E8:E12,D8,I8:I12)-C$7.","=F11+SUMIF(E7:E11,D7,I7:I11)-F$7."],"correct":0},{"id":"F.IV.8","question":"Trong Excel 2016, tại ô B4 có công thức =INT(C2/26)+SUM(D2:D11,F10,E2:E11)-A2. Khi sao chép công thức này đến ô D7 thì cho kết quả là gì?","options":["=INT(E5/26)+SUM(F5:F14,H13,G5:G14)-C5.","=INT(E5/26)+SUM(D5:D14,H13,G5:G14)- C2.","=INT(E5/26)+SUM(D2:D11,F10,E2:E11)- C5.","=INT(E5/26)+SUM(F5:F14,F13,G5:G14)- C5."],"correct":0},{"id":"F.IV.9","question":"Trong Excel 2016, tại ô C2 có công thức = E1- SUMIF($B$2:$B$8,F13,$G$2:$G$8)+A$10 Khi sao chép công thức này đến ô D7 thì cho kết quả là gì?","options":["= I5- SUMIF($B$2:$B$8,J17,$G$2:$G$8)+E$10.","= I5- SUMIF($B$2:$B$8,J17,$G$2:$G$8)+E10.","= I5- SUMIF($B$2:$B$8,J17,$G$2:$G$8)+A$10.","= I5- SUMIF($B$2:$B$8,J15,$G$2:$G$8)+E$10."],"correct":0},{"id":"F.V.10","question":"Trong Excel 2016, tại ô B3 có công thức =SUMIF(C2:C6,C9,E4:E8) Khi sao chép công thức này đến ô D5 cho kết quả là gì?","options":["=SUMIF(E4:E8,E11,G6:G10).","=SUMIF(E4:E8,E9,G6:G10).","=SUMIF(C4:C8,E11,G6:G10).","=SUMIF(E4,E8:E11,G6:G10)."],"correct":0},{"id":"F.VI.1","question":"Loại phần mềm nào sau đây có xu hướng thâm nhập và cố gắng tạo các khe hở bảo mật để hacker có thể tấn công vào hệ thống mạng máy tính?","options":["World Wide Web.","World Wild Web.","Word Wide Web.","World Wide Wed."],"correct":0},{"id":"F.VI.2","question":"Tôi muốn gửi email giống nhau cho nhiều người, nhưng mỗi người đều nhận được lời chào đúng tên riêng của họ, thì làm thế nào?","options":["Dùng Mail merge - Hợp nhất email.","Dùng Auto reply - Tự động trả lời.","Dùng Mail combine - Ghép email.","Không làm được cho dù có kết hợp với ứng dụng khác."],"correct":0},{"id":"F.VI.3","question":"Để xoá địa chỉ các Website đã truy cập trước đây, ta thực hiện thao tác nào sau đây?","options":["Click vào Tools / Internet Options / Delete browsing history on exit.","Click vào File / Internet Options / Clear History.","Click vào View / Internet Option / Clear History.","Click vào Internet Options / Clear History."],"correct":0},{"id":"F.VI.4","question":"Để bật / tắt tường lửa Windows Firewall trong máy tính ta thực hiện vào Control Panel và thực hiện thao tác nào sau đây?","options":["Nhấn chuột chọn System and Security / Windows Firewall.","Nhấn chuột chọn User Accounts / Windows Firewall.","Nhấn chuột chọn Network and Internet / Windows Firewall.","Nhấn chuột chọn Programs / Windows Firewall."],"correct":0},{"id":"F.VI.5","question":"Phát biểu nào dưới đây là sai?","options":["Nhấn nút BACK để đóng cửa sổ duyệt Web.","Mở nhiều cửa sổ duyệt web cho nhiều địa chỉ web khác nhau.","Vừa mở cửa sổ duyệt web, vừa chơi game trong lúc chờ trang web xuất hiện đầy đủ nội dung.","Nhấn nút Refresh là để bắt đầu lại quá trình tải trang web từ máy phục vụ về máy cá nhân của người dùng."],"correct":0},{"id":"F.VI.6","question":"Các bước để tạo Bookmark trên trình duyệt?","options":["Truy cập trang web / Ctrl + D / đặt tên /chọn \"Xong\".","Truy cập trang web / Ctrl + Shiflt + D / đặt tên /chọn \"Xong\".","Truy cập trang web / đặt tên / Ctrl + Shiflt + D  /chọn \"Xong\".","Truy cập trang web / đặt tên / Ctrl + D  /chọn \"Xong\"."],"correct":0},{"id":"F.VI.7","question":"Những cách nào để xử lý các đánh giá tiêu cực trên trang Web của công ty hoặc trang truyền thông xã hội?","options":["Thừa nhận và xin lỗi về các mối quan ngại được nêu trong bài đánh giá.","Đề nghị rằng tình huống tiêu cực là lỗi của họ.","Nói với họ rằng họ có thể đưa doanh nghiệp của mình đi nơi khác.","Công khai tố cáo họ với tư cách là khách hàng."],"correct":0},{"id":"F.VI.8","question":"Xác thực đa yếu tố (MFA) giúp cung cấp bảo mật bổ sung cho tài khoản bằng cách yêu cầu nhập hai hoặc nhiều thông tin đăng nhập. Đó là những thông tin đăng nhập phổ biến nào?","options":["Mật khẩu, Mã Pin, Dấu vân tay.","Mã Pin, Dấu vân tay, tên người dùng.","Ngày, Dấu vân tay, tên người dùng.","Ngày, Mật khẩu, tên người dùng."],"correct":0},{"id":"F.VI.9","question":"Bạn cần tối đa hoá quyền riêng tư trực tuyến. Đối với mỗi hành động nào sau đây?","options":["Xoá Cookies sau khi sử dụng trình duyệt Web.","Duy trì đăng nhập vào các trang Web.","Sử dụng cùng một thông tin đăng nhập cho nhiều tài khoản khác nhau.","Mở tất cả các Email để đảm bảo chúng không chứa phần mềm độc hại."],"correct":0},{"id":"F.VI.10","question":"Máy tính xách tay sử dụng hệ điều hành Windows 10 của bạn đã được cài đặt một số ứng dụng giao tiếp, bao gồm Mozilla FireFox và Zoom Meetings. Bạn muốn tất cả các ứng dụng sử dụng âm lượng tối đa khi phát âm thanh. Bạn có thể cấu hình lượng âm thanh mặc định được sử dụng cho tất cả các ứng dụng ở đâu?","options":["Advanced Sound Options.","System > Sound > Device Properties.","Video Playback.","Apps."],"correct":0}];
+
+    // ============ STATE ============
+    const STORAGE_KEY = 'tin_hoc_quiz_progress_v1';
+    let answers = {}; // { id: selectedIndex }
+    let currentIndex = 0;
+    let filtered = [...QUESTIONS];
+    let mode = 'quiz'; // quiz | list
+    let shuffledOrder = null;
+
+    // ============ INIT ============
+    function loadProgress() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          answers = data.answers || {};
+          currentIndex = data.currentIndex || 0;
+        }
+      } catch (e) {}
+    }
+
+    function saveProgress() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          answers,
+          currentIndex,
+          updated: new Date().toISOString()
+        }));
+      } catch (e) {}
+    }
+
+    function buildSectionFilter() {
+      const sections = new Set();
+      QUESTIONS.forEach(q => {
+        const m = q.id.match(/^([A-F]\.[IVX]+)/);
+        if (m) sections.add(m[1]);
+        else sections.add(q.id.split('.')[0]);
+      });
+      const sel = document.getElementById('filter-section');
+      [...sections].sort().forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+      });
+    }
+
+    // ============ STATS ============
+    function updateStats() {
+      let correct = 0, wrong = 0, done = 0;
+      QUESTIONS.forEach(q => {
+        if (answers[q.id] !== undefined) {
+          done++;
+          if (answers[q.id] === q.correct) correct++;
+          else wrong++;
+        }
+      });
+      document.getElementById('stat-done').textContent = done;
+      document.getElementById('stat-correct').textContent = correct;
+      document.getElementById('stat-wrong').textContent = wrong;
+      document.getElementById('progress').style.width = (done / QUESTIONS.length * 100) + '%';
+    }
+
+    // ============ FILTER / SEARCH ============
+    function applyFilter() {
+      const section = document.getElementById('filter-section').value;
+      const search = document.getElementById('search').value.trim().toLowerCase();
+      filtered = QUESTIONS.filter(q => {
+        if (section && !q.id.startsWith(section)) return false;
+        if (search && !q.id.toLowerCase().includes(search) && !q.question.toLowerCase().includes(search)) return false;
+        return true;
+      });
+      if (shuffledOrder) {
+        // keep relative order of filtered
+        const set = new Set(filtered.map(q => q.id));
+        filtered = shuffledOrder.filter(q => set.has(q.id));
+      }
+      currentIndex = 0;
+      render();
+    }
+
+    function shuffleQuestions() {
+      shuffledOrder = [...QUESTIONS].sort(() => Math.random() - 0.5);
+      applyFilter();
+    }
+
+    // ============ RENDER ============
+    function render() {
+      updateStats();
+      if (mode === 'quiz') renderQuiz();
+      else renderList();
+    }
+
+    function renderQuiz() {
+      document.getElementById('nav-btns').style.display = 'flex';
+      const container = document.getElementById('question-container');
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty">Không có câu hỏi phù hợp.</div>';
+        return;
+      }
+      if (currentIndex >= filtered.length) currentIndex = filtered.length - 1;
+      if (currentIndex < 0) currentIndex = 0;
+      const q = filtered[currentIndex];
+      const selected = answers[q.id];
+      const isAnswered = selected !== undefined;
+      const isCorrect = isAnswered && selected === q.correct;
+
+      let statusHtml = '';
+      if (isAnswered) {
+        statusHtml = isCorrect
+          ? '<span class="q-status correct">✓ Đúng</span>'
+          : '<span class="q-status wrong">✗ Sai</span>';
+      } else {
+        statusHtml = '<span class="q-status unanswered">Chưa trả lời</span>';
+      }
+
+      let optionsHtml = q.options.map((opt, i) => {
+        let cls = 'option';
+        if (isAnswered) {
+          cls += ' disabled';
+          if (i === q.correct) cls += ' correct-answer';
+          if (i === selected && selected !== q.correct) cls += ' wrong-answer';
+        } else if (selected === i) {
+          cls += ' selected';
+        }
+        const letter = String.fromCharCode(65 + i);
+        return `<div class="${cls}" data-idx="${i}" onclick="selectOption('${q.id}', ${i})">
+          <div class="opt-letter">${letter}</div>
+          <div>${escapeHtml(opt)}</div>
+        </div>`;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="question-card ${isAnswered ? (isCorrect ? 'answered-correct' : 'answered-wrong') : ''}">
+          <div class="q-header">
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+              <span class="q-id">${q.id}</span>
+              <span style="color:var(--muted);font-size:0.9rem">Câu ${currentIndex + 1}/${filtered.length}</span>
+            </div>
+            ${statusHtml}
+          </div>
+          <div class="q-text">${escapeHtml(q.question)}</div>
+          <div class="options">${optionsHtml}</div>
+        </div>
+      `;
+      saveProgress();
+    }
+
+    function renderList() {
+      document.getElementById('nav-btns').style.display = 'none';
+      const container = document.getElementById('question-container');
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty">Không có câu hỏi phù hợp.</div>';
+        return;
+      }
+      container.innerHTML = filtered.map((q, idx) => {
+        const selected = answers[q.id];
+        const isAnswered = selected !== undefined;
+        const isCorrect = isAnswered && selected === q.correct;
+        let statusHtml = isAnswered
+          ? (isCorrect ? '<span class="q-status correct">✓</span>' : '<span class="q-status wrong">✗</span>')
+          : '<span class="q-status unanswered">○</span>';
+        return `
+          <div class="question-card list-view ${isAnswered ? (isCorrect ? 'answered-correct' : 'answered-wrong') : ''}" 
+               onclick="toggleExpand(this)" data-id="${q.id}">
+            <div class="q-header">
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <span class="q-id">${q.id}</span>
+                ${statusHtml}
+              </div>
+            </div>
+            <div class="q-text">${escapeHtml(q.question)}</div>
+            <div class="options">
+              ${q.options.map((opt, i) => {
+                let cls = 'option disabled';
+                if (isAnswered) {
+                  if (i === q.correct) cls += ' correct-answer';
+                  if (i === selected && selected !== q.correct) cls += ' wrong-answer';
+                }
+                return `<div class="${cls}"><div class="opt-letter">${String.fromCharCode(65+i)}</div><div>${escapeHtml(opt)}</div></div>`;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleExpand(el) {
+      el.classList.toggle('expanded');
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // ============ ACTIONS ============
+    function selectOption(id, idx) {
+      if (answers[id] !== undefined) return; // already answered
+      answers[id] = idx;
+      saveProgress();
+      render();
+    }
+
+    function nextQ() {
+      if (currentIndex < filtered.length - 1) {
+        currentIndex++;
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function prevQ() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function jumpUnanswered() {
+      const start = currentIndex;
+      for (let i = 0; i < filtered.length; i++) {
+        const idx = (start + 1 + i) % filtered.length;
+        if (answers[filtered[idx].id] === undefined) {
+          currentIndex = idx;
+          render();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+      }
+      alert('Bạn đã làm hết các câu trong bộ lọc hiện tại!');
+    }
+
+    function showAnswer() {
+      const q = filtered[currentIndex];
+      if (!q) return;
+      if (answers[q.id] === undefined) {
+        // mark as shown but not counted? just reveal
+        answers[q.id] = -1; // special: revealed without choosing
+        // better: force select correct temporarily? No, just re-render with reveal
+      }
+      // Force show by temporarily setting if not answered
+      const was = answers[q.id];
+      if (was === undefined) answers[q.id] = q.correct; // auto mark correct? No, user asked show
+      // Better approach: always allow show by adding a flag, but simple: set to correct and note
+      answers[q.id] = q.correct;
+      saveProgress();
+      render();
+    }
+
+    function setMode(m) {
+      mode = m;
+      document.getElementById('btn-quiz').classList.toggle('active', m === 'quiz');
+      document.getElementById('btn-list').classList.toggle('active', m === 'list');
+      render();
+    }
+
+    function resetProgress() {
+      if (!confirm('Bạn chắc chắn muốn xóa toàn bộ tiến độ đã lưu?')) return;
+      answers = {};
+      currentIndex = 0;
+      saveProgress();
+      render();
+    }
+
+    // ============ START ============
+    loadProgress();
+    buildSectionFilter();
+    applyFilter();
+  </script>
+</body>
+</html>
